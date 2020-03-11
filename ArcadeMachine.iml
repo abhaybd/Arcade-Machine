@@ -25,5 +25,6 @@
     </orderEntry>
     <orderEntry type="library" name="jinput-2.0.9-natives-all" level="project" />
     <orderEntry type="library" name="usbdrivedetector-2.1.1-javadoc" level="project" />
+    <orderEntry type="library" name="lib" level="project" />
   </component>
 </module>
