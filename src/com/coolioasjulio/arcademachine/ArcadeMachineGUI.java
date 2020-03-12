@@ -117,7 +117,7 @@ public class ArcadeMachineGUI extends ArcadeMachine {
 
             g.setFont(getFontWithSize(g, g.getFont(), getHeight() / 8));
             g.setColor(Color.RED);
-            String title = "FancyPants Games";
+            String title = "Arcade Machine!";
             g.drawString(title, getWidth() / 2 - g.getFontMetrics().stringWidth(title) / 2, getHeight() / 8);
 
             int startY = getHeight() * 3 / 8;
