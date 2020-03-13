@@ -118,8 +118,8 @@ public class Ghost extends GameObject {
                         direction = newDir;
                     }
                 }
-            } else {
-                direction = newDir; // TODO: check if newDir is opposite of direction?
+            } else if (direction == null || newDir != Utils.opposite(direction)){
+                direction = newDir;
             }
         } else if (direction == null) {
             // If newDir is null, make sure direction isn't null

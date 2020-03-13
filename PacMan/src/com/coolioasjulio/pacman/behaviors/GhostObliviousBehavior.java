@@ -31,7 +31,7 @@ public class GhostObliviousBehavior extends Ghost.GhostBehavior {
 
         // Go towards the randomly selected point until the ghost is 1 tile away
         if (randomCoord != null) {
-            PathFinder.PathFindingResult toRandom = PathFinder.pathFind(levelMap, randomCoord, game.getPacMan().getTile(), ghost.getPrevTile(),
+            PathFinder.PathFindingResult toRandom = PathFinder.pathFind(levelMap, ghost.getTile(), randomCoord, ghost.getPrevTile(),
                     game.getPacMan().getPrevTile());
             if (toRandom.distance > 1) {
                 return toRandom.direction;
@@ -47,8 +47,8 @@ public class GhostObliviousBehavior extends Ghost.GhostBehavior {
             c.y = r.nextInt(levelMap.getHeight());
         } while (levelMap.isWall(c.x, c.y));
         randomCoord = c;
-        // TODO: is this correct? Shouldn't it go towards the random point from the ghost position?
-        return PathFinder.pathFind(levelMap, c, game.getPacMan().getTile(), ghost.getPrevTile(),
+        // Navigate towards the randomly selected point
+        return PathFinder.pathFind(levelMap, ghost.getTile(), randomCoord, ghost.getPrevTile(),
                 game.getPacMan().getPrevTile()).direction;
     }
 }
