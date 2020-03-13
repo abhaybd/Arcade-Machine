@@ -1,6 +1,5 @@
 package com.coolioasjulio.pacman;
 
-import com.coolioasjulio.pacman.behaviors.GhostAmbushBehavior;
 import com.coolioasjulio.pacman.behaviors.GhostFleeBehavior;
 import com.coolioasjulio.pacman.engine.BoxCollider;
 import com.coolioasjulio.pacman.engine.Coord;
@@ -9,7 +8,6 @@ import com.coolioasjulio.pacman.engine.GameObject;
 import com.coolioasjulio.pacman.engine.Sprite;
 
 import java.awt.Color;
-import java.util.function.Supplier;
 
 public class Ghost extends GameObject {
     /**
