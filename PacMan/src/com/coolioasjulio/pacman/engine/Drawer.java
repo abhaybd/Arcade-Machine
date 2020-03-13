@@ -3,6 +3,11 @@ package com.coolioasjulio.pacman.engine;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
 
+/**
+ * This is an implementation-agnostic class used for UI rendering. The implementation of this class should wrap around an
+ * existing rendering class, and just call their corresponding methods. The reason for this class is to not bound the games
+ * to any specific UI implementation.
+ */
 public interface Drawer {
     void drawOval(int x, int y, int width, int height);
 

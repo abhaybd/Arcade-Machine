@@ -4,6 +4,9 @@ import java.awt.Graphics;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
+/**
+ * This is basically a wrapper around the swing Graphics class that fulfills the implementation-agnostic Drawer contract.
+ */
 public class AwtGraphicsAdapter implements Drawer {
     private Graphics g;
 

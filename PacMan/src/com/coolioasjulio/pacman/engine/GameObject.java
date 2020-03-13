@@ -32,6 +32,11 @@ public class GameObject implements Locatable {
         this.activeSprite = activeSprite;
     }
 
+    /**
+     * Get the active sprite of the game object.
+     *
+     * @return The active sprite, or null if there are no sprites or invalid activeSprite index.
+     */
     public Sprite getActiveSprite() {
         return Utils.inRange(activeSprite, 0, sprites.length) ? sprites[activeSprite] : null;
     }

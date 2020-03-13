@@ -2,6 +2,9 @@ package com.coolioasjulio.pacman.engine;
 
 import java.awt.image.BufferedImage;
 
+/**
+ * This is an implementation of a Sprite that uses premade images and spritesheets for animations and rendering.
+ */
 public class ImageSprite extends Sprite {
     private BufferedImage[] spriteSheet;
 

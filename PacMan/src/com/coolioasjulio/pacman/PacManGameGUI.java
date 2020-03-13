@@ -29,6 +29,7 @@ public class PacManGameGUI extends PacManGame {
         PacManGameGUI game = new PacManGameGUI(map, 30);
         KeyListener listener;
         try {
+            // Mock the input platform to use the Swing keybindings instead
             PipedOutputStream pipedOut = new PipedOutputStream();
             InputStream in = new PipedInputStream(pipedOut);
             final DataOutputStream out = new DataOutputStream(pipedOut);
@@ -81,7 +82,7 @@ public class PacManGameGUI extends PacManGame {
             frame.setUndecorated(true);
         }
         frame.setVisible(true);
-        if (FULL_SCREEN) resize();
+        if (FULL_SCREEN) resize(); // resize the game to fit different screen sizes
         panel = new PacManPanel();
         frame.add(panel);
         if (listener != null) frame.addKeyListener(listener);
@@ -97,6 +98,9 @@ public class PacManGameGUI extends PacManGame {
         panel.updateInfo();
     }
 
+    /**
+     * Select a tile size in pixels to appropriately size the game for the screen size.
+     */
     private void resize() {
         int size;
         if (frame.getWidth() >= frame.getHeight()) {
@@ -107,11 +111,17 @@ public class PacManGameGUI extends PacManGame {
         setSize(size);
     }
 
+    /**
+     * Render the UI.
+     */
     @Override
     protected void update() {
+        // Update the info panel and draw the game
         panel.updateInfo();
         frame.repaint();
+        // If the player has won or lost, render it
         if (playerLost || playerWon) {
+            // See if the player wants to play again or not
             Boolean playAgain = null;
             do {
                 InputManager.getInputs();
@@ -127,6 +137,7 @@ public class PacManGameGUI extends PacManGame {
                     }
                 }
             } while (playAgain == null);
+            // Either restart game or kill the game
             if (playAgain) {
                 setup();
                 super.playGame();
@@ -165,6 +176,7 @@ public class PacManGameGUI extends PacManGame {
         private JLabel scoreLabel, livesLabel;
 
         public PacManPanel() {
+            // Initialize all UI elements
             setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
             scoreLabel = new JLabel("Score: 0");
@@ -199,6 +211,7 @@ public class PacManGameGUI extends PacManGame {
         }
 
         private void updateInfo() {
+            // Update the information panel
             scoreLabel.setText("Score: " + getScore());
             livesLabel.setText("Lives: " + lives);
         }
@@ -250,6 +263,14 @@ public class PacManGameGUI extends PacManGame {
             }
         }
 
+        /**
+         * Create a font that has approximately the requested height in pixels.
+         *
+         * @param g              The Graphics object to use for Font manipulation
+         * @param font           The base font to use to create new fonts
+         * @param fontSizePixels The requested font height in pixels
+         * @return A new font that has approximately the requested height in pixels
+         */
         private Font getFontWithSize(Graphics g, Font font, int fontSizePixels) {
             Font cached = pixelSizeToFont.get(fontSizePixels);
             if (cached != null && cached.getFontName().equals(font.getFontName())) {

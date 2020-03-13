@@ -23,18 +23,27 @@ public class BoxCollider implements Locatable {
         return height;
     }
 
+    @Override
     public void setParent(Locatable parent) {
         this.parent = parent;
     }
 
+    @Override
     public Locatable getParent() {
         return parent;
     }
 
+    @Override
     public Coord getLocalPosition() {
         return new Coord(x, y);
     }
 
+    /**
+     * Checks for collision against another BoxCollider.
+     *
+     * @param c The other collider to check against.
+     * @return True if this collider intersects the other one, false otherwise.
+     */
     public boolean intersects(BoxCollider c) {
         int xmin1 = getX();
         int xmax1 = getX() + width;

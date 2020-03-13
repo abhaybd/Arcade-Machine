@@ -12,12 +12,33 @@ import java.util.Set;
 
 public class PathFinder {
 
+    /**
+     * Find a path between two points in the level.
+     *
+     * @param levelMap   The level to navigate through.
+     * @param from       The starting point of the path.
+     * @param to         The ending point of the path.
+     * @param exclusions Any points to exclude from the path finding search. These points are treated like walls.
+     * @return A {@link PathFindingResult} object representing the direction to travel in.
+     */
     public static PathFindingResult pathFind(LevelMap levelMap, Coord from, Coord to, Coord... exclusions) {
         return pathFind(levelMap, from.x, from.y, to.x, to.y, exclusions);
     }
 
+    /**
+     * Find a path between two points in the level.
+     *
+     * @param levelMap   The level to navigate through.
+     * @param fromX      The x coordinate of the starting point.
+     * @param fromY      The y coordinate of the starting point.
+     * @param toX        The x coordinate of the ending point.
+     * @param toY        The y coordinate of the ending point.
+     * @param exclusions Any points to exclude from the path finding search. These points are treated like walls.
+     * @return A {@link PathFindingResult} object representing the direction to travel in.
+     */
     public static PathFindingResult pathFind(LevelMap levelMap, int fromX, int fromY, int toX, int toY, Coord... exclusions) {
         if (!levelMap.isOpen(fromX, fromY) || !levelMap.isOpen(toX, toY)) {
+            // If the starting and ending points are invalid, return an empty direction
             return new PathFindingResult(0, null);
         }
         return new PathFinder(levelMap, fromX, fromY, toX, toY, exclusions).pathFind();
@@ -36,7 +57,7 @@ public class PathFinder {
         }
 
         public String toString() {
-            return String.format("(dist=%d, dir=%s)", distance, direction.name());
+            return String.format("PathFindingResult(dist=%d, dir=%s)", distance, direction.name());
         }
 
         @Override
@@ -77,24 +98,37 @@ public class PathFinder {
         this.exclusions.addAll(Arrays.asList(exclusions));
     }
 
+    /**
+     * This is an implementation of Dijkstra's Algorithm to find a path between the two points.
+     *
+     * @return A PathFindingResult object representing the path to take
+     */
     private PathFindingResult pathFind() {
+        // If the starting point is the ending point, return immediately.
         if (from == to) {
             return new PathFindingResult(0, Direction.EAST);
         }
+        // Initialize the set of cells to search through
         Set<Cell> neighbors = new HashSet<>();
-        neighbors.add(from);
-        while(true) {
+        neighbors.add(from); // The first cell is the starting cell
+        while (true) {
+            // If there are no more neighbors to search through and we haven't found the path yet, there is no possible path.
             if (neighbors.isEmpty()) {
                 return new PathFindingResult(0, null);
             }
+            // The cell to search is the cheapest cell to get to from the set of neighbors
             Cell cell = neighbors.stream().min(Comparator.comparing(c -> c.cost)).orElseThrow(IllegalStateException::new);
+            // If the searched cell is the ending point, we've found the optimal path
             if (cell == to) {
                 break;
             }
+            // Remove the cell from the neighbors set
             neighbors.remove(cell);
+            // Initialize the costs and paths for each neighbor of this cell, iff the new path is more optimal, or if the cell is unvisited
             Set<Cell> newNeighbors = getNeighbors(cell);
             int newCost = cell.cost + 1;
             for (Cell c : newNeighbors) {
+                // If unvisited or new path is more optimal, initialize it and add it to the neighbors list
                 if (c.cost > newCost) {
                     c.cost = newCost;
                     c.path.clear();
@@ -104,11 +138,13 @@ public class PathFinder {
                 }
             }
         }
-        Coord start = to.path.get(0).pos;
+        // If we've reached this point, the optimal path has been found.
+        Coord start = to.path.get(0).pos; // The ending cell has been modified in place, so it has the information we need.
         Coord end = to.path.get(1).pos;
         int dx = end.x - start.x;
         int dy = end.y - start.y;
 
+        // Return the result of the pathfinding
         PathFindingResult result = new PathFindingResult();
         result.distance = to.path.size();
         if (dx == 0 && dy == 1) result.direction = Direction.SOUTH;
@@ -125,20 +161,33 @@ public class PathFinder {
         Set<Cell> cellSet = new HashSet<>();
         for (int dy = -1; dy <= 1; dy++) {
             for (int dx = -1; dx <= 1; dx++) {
+                // Don't evaluate this coordinate if it's a wall, it's an exclusion, or if it's diagonal from the current cell.
                 if (Math.abs(dx) == Math.abs(dy) ||
-                        !levelMap.isOpen(x+dx, y+dy) ||
-                        exclusions.contains(new Coord(x+dx, y+dy))) {
+                        !levelMap.isOpen(x + dx, y + dy) ||
+                        exclusions.contains(new Coord(x + dx, y + dy))) {
                     continue;
                 }
-                cellSet.add(cells[y+dy][x+dx]);
+                cellSet.add(cells[y + dy][x + dx]);
             }
         }
         return cellSet;
     }
 
+    /**
+     * Data container class, representing a tile on the level map.
+     */
     private static class Cell {
+        /**
+         * The tile position represented by this object.
+         */
         public Coord pos;
+        /**
+         * The path to take from the starting tile to this tile.
+         */
         public List<Cell> path = new ArrayList<>();
+        /**
+         * The cost to get from the starting tile to this tile.
+         */
         public int cost = Integer.MAX_VALUE;
 
         public Cell(Coord pos) {

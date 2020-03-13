@@ -6,6 +6,13 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Stack;
 
+/**
+ * This class implements a common input platform for use in all games. The reason this is required is because all other games
+ * are packaged as individual jar files. This means that if they were to directly read input from the user, they would have to read from the physical input devices.
+ * This means that they are bound to the hardware of the machine. Instead, they receive their inputs from their process input stream using
+ * this InputManager. The main arcade machine program will monitor the hardware inputs and send the inputs to the game process using the process input stream.
+ * This means that the games just have to accept their inputs from this platform, and all the hardware code is localized to the main Arcade Machine code.
+ */
 public class InputManager {
     private static DataInputStream in;
     private static Stack<Integer> currTickInputs;
@@ -78,6 +85,6 @@ public class InputManager {
             prevTickInputs.clear();
             prevTickInputs.addAll(Arrays.asList(inputs));
         }
-        return Arrays.stream(inputs).mapToInt(i -> i).toArray();
+        return Arrays.stream(inputs).mapToInt(Integer::intValue).toArray();
     }
 }

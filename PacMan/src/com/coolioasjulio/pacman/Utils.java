@@ -8,6 +8,12 @@ public class Utils {
         return num >= low && num < high;
     }
 
+    /**
+     * Get the direction of travel in the x axis for the given direction.
+     *
+     * @param direction The direction to get the x delta for.
+     * @return 1 if East, -1 if West, 0 otherwise.
+     */
     public static int getDeltaX(Direction direction) {
         switch (direction) {
             case EAST:
@@ -23,6 +29,12 @@ public class Utils {
         }
     }
 
+    /**
+     * Get the direction of travel in the y axis for the given direction.
+     *
+     * @param direction The direction to get the y delta for.
+     * @return 1 if South, -1 if North, 0 otherwise. North is negative due to +y being downwards.
+     */
     public static int getDeltaY(Direction direction) {
         switch (direction) {
             case NORTH:
@@ -42,10 +54,12 @@ public class Utils {
         return (int) Math.round(d);
     }
 
-    public static <T> T randomChoice(T... arr) {
-        return arr[(int) (Math.random() * arr.length)];
-    }
-
+    /**
+     * Return the direction opposite of the given direction.
+     *
+     * @param dir The direction of which to find the opposite.
+     * @return North if South, South if North, East if West, West if East.
+     */
     public static Direction opposite(Direction dir) {
         if (dir == null) return null;
         switch (dir) {
@@ -64,7 +78,18 @@ public class Utils {
         }
     }
 
+
+    /**
+     * Warp an object around the edges of the level map. This is used to teleport through tunnels.
+     *
+     * @param obj      The game object to warp.
+     * @param levelMap The active level map.
+     * @param size     The side length of a tile, in pixels.
+     */
     public static void warpEdges(GameObject obj, LevelMap levelMap, int size) {
+        if (obj.getParent() != null) {
+            throw new IllegalArgumentException("Only objects that aren't children can be warped!");
+        }
         if (obj.getX() / size >= levelMap.getWidth()) {
             obj.setLocalPosition(0, obj.getY());
         } else if (obj.getX() / size < 0) {
@@ -77,7 +102,17 @@ public class Utils {
         }
     }
 
+    /**
+     * Snap a game object to the center of its block if it's close enough to the center.
+     *
+     * @param obj       The GameObject to snap.
+     * @param size      The side length of a tile, in pixels.
+     * @param threshold The distance threshold under which snapping is allowed, in pixels.
+     */
     public static void snapGameObject(GameObject obj, int size, int threshold) {
+        if (obj.getParent() != null) {
+            throw new IllegalArgumentException("Only objects that aren't children can be snapped!");
+        }
         int x = obj.getX();
         if (Math.abs(obj.getTileX(size) * size - obj.getX()) <= threshold) {
             x = obj.getTileX(size) * size;
@@ -89,11 +124,26 @@ public class Utils {
         obj.setLocalPosition(x, y);
     }
 
+    /**
+     * Move the supplied game object in the supplied level map in the supplied direction by at most the supplied distance.
+     * It will try to move by the full distance, but if there is a wall in the way, it will move as much as possible instead.
+     *
+     * @param obj The object to move.
+     * @param levelMap The active level map.
+     * @param direction The direction to move in.
+     * @param distance The distance to move, in pixels. This cannot exceed the size of a tile.
+     * @param size The side length of a tile, in pixels.
+     */
     public static void moveGameObject(GameObject obj, LevelMap levelMap, Direction direction, int distance, int size) {
+        if (distance >= size)
+        {
+            throw new IllegalArgumentException("Distance to move cannot be more than the size of a tile!");
+        }
         int dx = Utils.getDeltaX(direction);
         int dy = Utils.getDeltaY(direction);
         int newXPixel = Utils.round(obj.getX() + dx * distance);
         int newYPixel = Utils.round(obj.getY() + dy * distance);
+        // If moving the full distance results in a collision with a wall, then snap backwards to the closest open tile
         if (levelMap.collides(new BoxCollider(newXPixel, newYPixel, size, size), size)) {
             int x = obj.getX(), y = obj.getY();
             switch (direction) {
@@ -115,6 +165,7 @@ public class Utils {
             }
             obj.setLocalPosition(x, y);
         } else {
+            // Otherwise, just move there
             obj.setLocalPosition(newXPixel, newYPixel);
         }
     }

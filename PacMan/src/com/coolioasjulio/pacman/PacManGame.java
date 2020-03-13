@@ -126,6 +126,9 @@ public abstract class PacManGame {
         return score;
     }
 
+    /**
+     * Called at the start of a level. Initializes everything.
+     */
     private void setUpLevel() {
         pacMan = new PacMan(levelMap.spawnX() * size, levelMap.spawnY() * size, size, PACMAN_COLOR, Color.BLACK);
         pacMan.setSpeed(Utils.round(DEF_PACMAN_SPEED * size));
@@ -141,32 +144,42 @@ public abstract class PacManGame {
      * Start the game. This method blocks until the game is finished.
      */
     protected void playGame() {
+        // Initialize the input manager and the level
         InputManager.enable();
         setUpLevel();
+        // Run until interrupted
         while (!Thread.interrupted()) {
             double dt = Time.deltaTime();
-            InputManager.getInputs();
+            InputManager.getInputs(); // Get the recent inputs from the last timestep
 
+            // If the powerup is active and has expired, disable it
             if (powerupActive && System.currentTimeMillis() >= powerupTimeoutTime) {
                 stopPowerup();
             }
 
             long start = System.currentTimeMillis();
+            // Spawn ghosts if required
             spawnGhostIfNecessary();
+            // Update all ghosts
             Arrays.stream(ghosts).filter(Objects::nonNull).forEach(g -> g.update(levelMap, dt));
+            // Update the player
             pacMan.update(levelMap, dt);
+            // Handle the player eating things
             eatPellets();
             eatPowerups();
             eatGhosts();
+            // Update the UI
             update();
 
-            if (playerDied()) {
+            // Handle the player losing a life
+            if (playerShouldDie()) {
                 onDeath();
                 lives--;
                 Time.start();
                 ghosts = new Ghost[4];
                 spawnPacMan();
                 nextGhostSpawnTime = System.currentTimeMillis() + GHOST_SPAWN_INTERVAL;
+                // If the player has lost all lives, handle losing the game
                 if (lives <= 0) {
                     onLose();
                     break;
@@ -174,12 +187,14 @@ public abstract class PacManGame {
                 continue;
             }
 
+            // If there are no more pellets, the player has won.
             if (pellets.isEmpty()) {
                 onLevelComplete();
                 setUpLevel();
                 break;
             }
 
+            // Update rate is 20Hz, so there should be 50ms between the start of each update
             try {
                 Thread.sleep(Math.max(0, 50 - (System.currentTimeMillis() - start)));
             } catch (InterruptedException e) {
@@ -189,6 +204,9 @@ public abstract class PacManGame {
         }
     }
 
+    /**
+     * Reset all powerups to uneaten.
+     */
     private void resetPowerups() {
         powerups.clear();
         for (Coord c : levelMap.getPowerupsCoords()) {
@@ -197,6 +215,9 @@ public abstract class PacManGame {
         }
     }
 
+    /**
+     * Handles pac man eating the powerups. Does nothing if none are eaten.
+     */
     private void eatPowerups() {
         List<GameObject> eaten = powerups.stream().filter(c -> c.intersects(pacMan)).collect(Collectors.toList());
         powerups.removeAll(eaten);
@@ -210,6 +231,9 @@ public abstract class PacManGame {
         }
     }
 
+    /**
+     * Called once the powerup has expired. Resets the ghost behaviors and speeds.
+     */
     private void stopPowerup() {
         Arrays.stream(ghosts).filter(Objects::nonNull).forEach(g -> {
             g.setFleeing(false);
@@ -218,6 +242,9 @@ public abstract class PacManGame {
         powerupActive = false;
     }
 
+    /**
+     * Handles pac man eating ghosts. Does nothing if no ghosts are eaten or if no powerups are active.
+     */
     private void eatGhosts() {
         if (!powerupActive) return;
         List<Ghost> eaten = Arrays.stream(ghosts).filter(Objects::nonNull).filter(g -> g.intersects(pacMan)).collect(Collectors.toList());
@@ -231,6 +258,9 @@ public abstract class PacManGame {
         }
     }
 
+    /**
+     * Reset all pellets to uneaten.
+     */
     private void resetPellets() {
         pellets.clear();
         for (int y = 0; y < levelMap.getHeight(); y++) {
@@ -243,17 +273,33 @@ public abstract class PacManGame {
         }
     }
 
+    /**
+     * Handles pac man eating pellets. Does nothing if no pellets are eaten.
+     */
     private void eatPellets() {
         List<GameObject> eaten = pellets.stream().filter(p -> p.intersects(pacMan)).collect(Collectors.toList());
         score += eaten.size();
         pellets.removeAll(eaten);
     }
 
-    private boolean playerDied() {
+    /**
+     * Find if the player should be killed.
+     *
+     * @return True if the player should die, false otherwise.
+     */
+    private boolean playerShouldDie() {
+        // the player cannot die if powerups are active
         if (powerupActive) return false;
+        // Otherwise, return true if any ghost is intersecting pacman.
         return Arrays.stream(ghosts).filter(Objects::nonNull).anyMatch(g -> g.intersects(pacMan));
     }
 
+    /**
+     * Set the appropriate ghost behavior to the supplied ghost. Each ghost has a different behavior.
+     *
+     * @param g     The ghost to set the behavior for.
+     * @param index The index of the ghost, in the range [0,4).
+     */
     private void setBehavior(Ghost g, int index) {
         Ghost.GhostBehavior behavior;
         if (index == 0) {
@@ -268,8 +314,14 @@ public abstract class PacManGame {
         g.setBehavior(behavior);
     }
 
+    /**
+     * If required, spawn a new ghost. No ghost is spawned if all 4 are alive, a powerup is active, or if the ghost spawn timer hasn't finished yet.
+     * If a ghost has to be spawned, the lowest index ghost is spawned. (ghost index 1 is spawned before ghost index 3)
+     */
     private void spawnGhostIfNecessary() {
+        // Only spawn a ghost if no powerup is active and the timer has expired
         if (!powerupActive && System.currentTimeMillis() >= nextGhostSpawnTime) {
+            // Find which ghost to spawn (the lowest empty index)
             int index = -1;
             for (int i = 0; i < ghosts.length; i++) {
                 if (ghosts[i] == null) {
@@ -277,12 +329,15 @@ public abstract class PacManGame {
                     break;
                 }
             }
+            // If all ghosts are alive, don't do anything
             if (index == -1) return;
+            // Create the ghost at the spawn point with the appropriate color and behavior
             Ghost g = new Ghost(levelMap.spawnX() * size, levelMap.spawnY() * size, size, GHOST_COLORS[index], GHOST_FLEE_COLOR);
             g.setSpeed(Utils.round(DEF_GHOST_SPEED * size));
             setBehavior(g, index);
             ghosts[index] = g;
             System.out.println("Spawned ghost!");
+            // Reset the spawn timer
             nextGhostSpawnTime = System.currentTimeMillis() + GHOST_SPAWN_INTERVAL;
         }
     }

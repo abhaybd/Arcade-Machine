@@ -5,6 +5,9 @@ import com.coolioasjulio.pacman.Ghost;
 import com.coolioasjulio.pacman.PacManGame;
 import com.coolioasjulio.pacman.PathFinder;
 
+/**
+ * This is the simplest behavior. This is the first ghost (index 0). It just chases pac man and goes along the shortest route.
+ */
 public class GhostChaseBehavior extends Ghost.GhostBehavior {
 
     public GhostChaseBehavior(Ghost ghost) {
@@ -17,6 +20,7 @@ public class GhostChaseBehavior extends Ghost.GhostBehavior {
         int size = game.getSize();
         int x = ghost.getTileX(size);
         int y = ghost.getTileY(size);
+        // Calculate a path to pac man and follow it. Exclude the ghost's previous tile to prevent U-turns
         return PathFinder.pathFind(
                 game.getLevelMap(),
                 x,
