@@ -1,13 +1,10 @@
 package com.coolioasjulio.arcademachine;
 
-import net.java.games.input.Component;
-import net.java.games.input.Controller;
-import net.java.games.input.ControllerEnvironment;
+import com.studiohartman.jamepad.ControllerManager;
+import com.studiohartman.jamepad.ControllerState;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.function.Consumer;
 
 public class Input {
@@ -24,7 +21,6 @@ public class Input {
     private Direction lastDirection;
     private Thread inputThread;
     private Consumer<Integer> onPressed;
-    private Controller controller;
 
     private Input() {
         if (ArcadeMachineGUI.MOCK_INPUT) {
@@ -38,11 +34,12 @@ public class Input {
             joystick = new MockJoystick();
         } else {
             // TODO: test this with the actual hardware
-            Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
-            controller = Arrays.stream(controllers).min(Comparator.comparing(Controller::getPortNumber)).orElseThrow(IllegalStateException::new);
-            buttonA = new HardwareButton(KeyEvent.VK_A, controller.getComponent(Component.Identifier.Button._0));
-            buttonB = new HardwareButton(KeyEvent.VK_B, controller.getComponent(Component.Identifier.Button._1));
-            joystick = new HardwareJoystick(controller.getComponent(Component.Identifier.Axis.POV));
+            final ControllerManager manager = new ControllerManager();
+            manager.initSDLGamepad();
+            System.out.printf("Detected %d controllers\n", manager.getNumControllers());
+            buttonA = new HardwareButton(KeyEvent.VK_A, () -> manager.getState(0).a);
+            buttonB = new HardwareButton(KeyEvent.VK_B, () -> manager.getState(0).b);
+            joystick = new HardwareJoystick(() -> manager.getState(0));
         }
         onPressed = i -> {
         };
@@ -62,10 +59,6 @@ public class Input {
 
     private void inputTask() {
         while (!Thread.interrupted()) {
-            if (controller != null) {
-                controller.poll();
-            }
-
             if (buttonA.pressed()) {
                 onPressed.accept(buttonA.getKeycode());
             }

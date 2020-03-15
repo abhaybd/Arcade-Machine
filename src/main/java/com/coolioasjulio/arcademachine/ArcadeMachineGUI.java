@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class ArcadeMachineGUI extends ArcadeMachine {
 
-    static boolean MOCK_INPUT = true;
+    static boolean MOCK_INPUT = false;
 
     public static void main(String[] args) {
         ArcadeMachineGUI am = new ArcadeMachineGUI();
@@ -70,15 +70,20 @@ public class ArcadeMachineGUI extends ArcadeMachine {
             super.decIndex();
         } else if (keycode == KeyEvent.VK_A) {
             Thread t = new Thread(super::launchGame);
+            acceptInput = false;
             t.start();
 
             if (!MOCK_INPUT) {
-                try {
-                    t.join();
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-                frame.requestFocus();
+                Thread waiter = new Thread(() -> {
+                    try {
+                        t.join();
+                        frame.requestFocus();
+                        acceptInput = true;
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                });
+                waiter.start();
             }
         }
         frame.repaint();

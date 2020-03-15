@@ -1,17 +1,19 @@
 package com.coolioasjulio.arcademachine;
 
-import net.java.games.input.Component;
+import java.util.function.Supplier;
 
 public class HardwareButton extends Button {
-    private final Component component;
 
-    public HardwareButton(int keycode, Component component) {
+
+    private final Supplier<Boolean> buttonPressedSupplier;
+
+    public HardwareButton(int keycode, Supplier<Boolean> buttonPressedSupplier) {
         super(keycode);
-        this.component = component;
+        this.buttonPressedSupplier = buttonPressedSupplier;
     }
 
     @Override
     public boolean isDown() {
-        return component.getPollData() >= 0.5f;
+        return buttonPressedSupplier.get();
     }
 }
