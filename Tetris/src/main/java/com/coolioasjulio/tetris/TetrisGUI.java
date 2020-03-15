@@ -6,14 +6,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.BoxLayout;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.BasicStroke;
 
 public class TetrisGUI {
 
@@ -25,7 +20,7 @@ public class TetrisGUI {
     private static final Color BACKGROUND_COLOR = Color.WHITE;
 
     private static final boolean MOCK_INPUT = false;
-    private static final boolean FULL_SCREEN = false;
+    private static final boolean FULL_SCREEN = true;
 
     private JFrame frame;
     private TetrisBase tetris;
@@ -39,15 +34,6 @@ public class TetrisGUI {
     private int loseTextSize = blockSize * 6 / 5;
 
     public TetrisGUI() {
-        pane = new TetrisPane(GAME_WIDTH, GAME_HEIGHT);
-        tetris = new TetrisBase(GAME_WIDTH, GAME_HEIGHT);
-        lineLabel = new JLabel();
-        lineLabel.setMinimumSize(new Dimension(7 * blockSize, GAME_HEIGHT / 2 * blockSize));
-        lineLabel.setPreferredSize(new Dimension(7 * blockSize, GAME_HEIGHT / 2 * blockSize));
-        lineLabel.setForeground(Color.WHITE);
-        lineLabel.setFont(new Font("Sans-Serif", Font.PLAIN, lineLabelSize));
-        lineLabel.setHorizontalAlignment(JLabel.CENTER);
-        lineLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
 
         frame = new JFrame("Tetris");
         if (FULL_SCREEN) {
@@ -74,22 +60,55 @@ public class TetrisGUI {
         }
         frame.setVisible(true);
         if (FULL_SCREEN) resize(); // resize the game to fit different screen sizes
-        frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.X_AXIS));
-        frame.add(pane);
-        JPanel sidePanel = new JPanel();
-        sidePanel.setOpaque(true);
-        sidePanel.setBackground(SIDE_PANEL_COLOR);
-        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
-        sidePanel.add(new NextPiecePane());
-        sidePanel.add(lineLabel);
-        frame.add(sidePanel);
+        pane = new TetrisPane(GAME_WIDTH, GAME_HEIGHT);
+        tetris = new TetrisBase(GAME_WIDTH, GAME_HEIGHT);
+        frame.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 1;
+        c.gridheight = 2;
+        frame.add(pane, c);
+        c.gridx = 1;
+        c.gridy = 0;
+        c.gridwidth = 1;
+        c.gridheight = 2;
+        JPanel sidePanel = createSidePanel();
+        frame.add(sidePanel, c);
         if (!FULL_SCREEN) frame.pack();
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
+    private JPanel createSidePanel()
+    {
+        JPanel sidePanel = new JPanel();
+        sidePanel.setOpaque(true);
+        sidePanel.setBackground(SIDE_PANEL_COLOR);
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+        sidePanel.add(new NextPiecePane());
+        createLabel();
+        sidePanel.add(lineLabel);
+        return sidePanel;
+    }
+
+    private void createLabel()
+    {
+        lineLabel = new JLabel();
+        Dimension labelSize = new Dimension(7 * blockSize, GAME_HEIGHT / 2 * blockSize);
+        lineLabel.setMinimumSize(labelSize);
+        lineLabel.setPreferredSize(labelSize);
+        lineLabel.setMaximumSize(labelSize);
+        lineLabel.setForeground(Color.WHITE);
+        lineLabel.setFont(new Font("Sans-Serif", Font.PLAIN, lineLabelSize));
+        lineLabel.setHorizontalAlignment(JLabel.CENTER);
+        lineLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+    }
+
     public void resize() {
-        setBlockSize(frame.getHeight() / GAME_HEIGHT);
+        int size = frame.getHeight() / GAME_HEIGHT;
+        setBlockSize(size);
+        System.out.println("Size: " + size);
     }
 
     public void setBlockSize(int size) {
@@ -214,8 +233,9 @@ public class TetrisGUI {
     private class NextPiecePane extends JPanel {
 
         public NextPiecePane() {
-            Dimension d = new Dimension(5 * blockSize, 6 * blockSize);
+            Dimension d = new Dimension(5 * blockSize, GAME_HEIGHT/2 * blockSize);
             setPreferredSize(d);
+            setMaximumSize(d);
         }
 
         @Override
