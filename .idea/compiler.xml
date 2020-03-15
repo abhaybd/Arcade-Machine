@@ -6,13 +6,14 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="ArcadeMachine" />
+        <module name="Tetris" />
         <module name="PacMan" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="ArcadeMachine" target="8" />
       <module name="PacMan" target="8" />
+      <module name="Tetris" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>

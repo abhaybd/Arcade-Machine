@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ArcadeMachine.iml" filepath="$PROJECT_DIR$/ArcadeMachine.iml" />
       <module fileurl="file://$PROJECT_DIR$/PacMan/PacMan.iml" filepath="$PROJECT_DIR$/PacMan/PacMan.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Tetris/Tetris.iml" filepath="$PROJECT_DIR$/Tetris/Tetris.iml" />
     </modules>
   </component>
 </project>
