@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public abstract class ArcadeMachine {
-    public static final String GAME_DIR = "out\\artifacts\\PacMan_Main_jar";
+    public static final String GAME_DIR = "games";
     public static final String GAME_INFO_FILE = "games.info";
 
     protected File[] games;
