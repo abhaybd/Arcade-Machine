@@ -307,7 +307,7 @@ public abstract class PacManGame {
         } else if (index == 1) {
             behavior = new GhostAmbushBehavior(g);
         } else if (index == 2) {
-            behavior = new GhostPinchBehavior(g, ghosts[0]);
+            behavior = new GhostPinchBehavior(g, () -> ghosts[0]);
         } else {
             behavior = new GhostObliviousBehavior(g);
         }

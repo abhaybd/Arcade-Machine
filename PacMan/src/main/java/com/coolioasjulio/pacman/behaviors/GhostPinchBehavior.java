@@ -6,17 +6,28 @@ import com.coolioasjulio.pacman.PacManGame;
 import com.coolioasjulio.pacman.PathFinder;
 import com.coolioasjulio.pacman.Utils;
 
+import java.util.function.Supplier;
+
 /**
  * This is the behavior of the 3rd ghost (index=2). This works together with the 1st ghost to pinch the player.
  * It draws a line from the other ghost to pac man, and then navigates to a point on that line past pac man.
  * Basically, it tries to put pac man between itself and the other ghost.
  */
 public class GhostPinchBehavior extends Ghost.GhostBehavior {
-    private Ghost other;
+    private Supplier<Ghost> otherSupplier;
+    private GhostChaseBehavior chaseBehavior;
 
-    public GhostPinchBehavior(Ghost ghost, Ghost other) {
+    /**
+     * Create a GhostPinchBehavior.
+     *
+     * @param ghost         The ghost that has this behavior.
+     * @param otherSupplier This supplier gives the ghost that it will work with. This is the first ghost. The reason it's
+     *                      a supplier and not a ghost is because the other ghost may die and become replaced.
+     */
+    public GhostPinchBehavior(Ghost ghost, Supplier<Ghost> otherSupplier) {
         super(ghost);
-        this.other = other;
+        this.otherSupplier = otherSupplier;
+        chaseBehavior = new GhostChaseBehavior(ghost);
     }
 
     @Override
@@ -24,6 +35,13 @@ public class GhostPinchBehavior extends Ghost.GhostBehavior {
         PacManGame game = PacManGame.getInstance();
         int pacManX = game.getPacManTileX();
         int pacManY = game.getPacManTileY();
+
+        // Get the other ghost to use for calculations
+        Ghost other = otherSupplier.get();
+        // If that ghost is dead, default to the chase behavior
+        if (other == null) {
+            return chaseBehavior.getDirection();
+        }
 
         int size = game.getSize();
         int otherX = other.getTileX(size);
