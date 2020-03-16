@@ -16,8 +16,8 @@ public class TetrisGUI {
     private static final double DIFFICULTY = 0.2; // completely arbitrary, affects slope/curvature of delay curve
     private static final double LEVEL_0_DELAY = 400;
 
-    private static final Color SIDE_PANEL_COLOR = new Color(150, 150, 150);
-    private static final Color BACKGROUND_COLOR = Color.WHITE;
+    private static final Color SIDE_PANEL_COLOR = new Color(0, 0, 128);
+    private static final Color BACKGROUND_COLOR = new Color(32, 32, 32);
 
     private static final boolean MOCK_INPUT = false;
     private static final boolean FULL_SCREEN = true;
@@ -34,8 +34,10 @@ public class TetrisGUI {
     private int loseTextSize = blockSize * 6 / 5;
 
     public TetrisGUI() {
+        tetris = new TetrisBase(GAME_WIDTH, GAME_HEIGHT);
 
         frame = new JFrame("Tetris");
+        frame.getContentPane().setBackground(Color.BLACK);
         if (FULL_SCREEN) {
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             frame.setUndecorated(true);
@@ -61,27 +63,34 @@ public class TetrisGUI {
         frame.setVisible(true);
         if (FULL_SCREEN) resize(); // resize the game to fit different screen sizes
         pane = new TetrisPane(GAME_WIDTH, GAME_HEIGHT);
-        tetris = new TetrisBase(GAME_WIDTH, GAME_HEIGHT);
-        frame.setLayout(new GridBagLayout());
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        panel.setBackground(SIDE_PANEL_COLOR);
         GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(blockSize / 2, blockSize / 2, blockSize / 2, blockSize / 4);
         c.gridx = 0;
         c.gridy = 0;
         c.gridwidth = 1;
         c.gridheight = 2;
-        frame.add(pane, c);
+        panel.add(pane, c);
+        c.insets = new Insets(blockSize / 2, blockSize / 4, blockSize / 2, blockSize / 2);
         c.gridx = 1;
         c.gridy = 0;
         c.gridwidth = 1;
         c.gridheight = 2;
         JPanel sidePanel = createSidePanel();
-        frame.add(sidePanel, c);
+        panel.add(sidePanel, c);
+        Dimension size = panel.getPreferredSize();
+        panel.setMaximumSize(size);
+        frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
+        frame.add(panel);
+        panel.setPreferredSize(size);
         if (!FULL_SCREEN) frame.pack();
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private JPanel createSidePanel()
-    {
+    private JPanel createSidePanel() {
         JPanel sidePanel = new JPanel();
         sidePanel.setOpaque(true);
         sidePanel.setBackground(SIDE_PANEL_COLOR);
@@ -92,8 +101,7 @@ public class TetrisGUI {
         return sidePanel;
     }
 
-    private void createLabel()
-    {
+    private void createLabel() {
         lineLabel = new JLabel();
         Dimension labelSize = new Dimension(7 * blockSize, GAME_HEIGHT / 2 * blockSize);
         lineLabel.setMinimumSize(labelSize);
@@ -106,9 +114,8 @@ public class TetrisGUI {
     }
 
     public void resize() {
-        int size = frame.getHeight() / GAME_HEIGHT;
+        int size = frame.getHeight() / (GAME_HEIGHT + 1);
         setBlockSize(size);
-        System.out.println("Size: " + size);
     }
 
     public void setBlockSize(int size) {
@@ -233,7 +240,7 @@ public class TetrisGUI {
     private class NextPiecePane extends JPanel {
 
         public NextPiecePane() {
-            Dimension d = new Dimension(5 * blockSize, GAME_HEIGHT/2 * blockSize);
+            Dimension d = new Dimension(5 * blockSize, GAME_HEIGHT / 2 * blockSize);
             setPreferredSize(d);
             setMaximumSize(d);
         }
@@ -292,6 +299,7 @@ public class TetrisGUI {
                 int height = g.getFontMetrics().getHeight();
 
                 g.drawString("You lose!", getWidth() / 2 - width / 2, getHeight() / 2 - height / 2);
+                // TODO: prompt player to quit or play again
             }
         }
     }
