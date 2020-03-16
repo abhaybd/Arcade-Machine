@@ -6,6 +6,12 @@ import java.util.Objects;
 
 public class Matrix {
 
+    /**
+     * Create an identity matrix.
+     *
+     * @param size The size of the matrix. Since this matrix is square, it is both the rows and columns.
+     * @return A size x size identity matrix.
+     */
     public static Matrix identity(int size) {
         Matrix m = new Matrix(size, size);
         for (int i = 0; i < size; i++) {
@@ -48,6 +54,11 @@ public class Matrix {
         this.matrix = data;
     }
 
+    /**
+     * Flatten the matrix row-wise. That means that the resultant array will be all rows of the matrix concatenated together.
+     *
+     * @return The flattened matrix
+     */
     public double[] flatten() {
         return Arrays.stream(matrix).flatMapToDouble(DoubleStream::of).toArray();
     }
@@ -60,14 +71,34 @@ public class Matrix {
         return matrix[row][col];
     }
 
+    /**
+     * Multiply this matrix by a scalar.
+     *
+     * @param scalar The scalar to multiply by.
+     * @return The resultant matrix after multiplication.
+     */
     public Matrix scalarMultiply(double scalar) {
         return new Matrix(rows, cols, Arrays.stream(flatten()).map(d -> d * scalar).toArray());
     }
 
+    /**
+     * Get the specified row of the matrix.
+     * This vector has a reference to the same underlying array, so mutating this vector will mutate this matrix.
+     *
+     * @param row The row index
+     * @return The row of the matrix
+     */
     public Vector getRow(int row) {
         return new Vector(matrix[row]);
     }
 
+    /**
+     * Get the specified column of the matrix.
+     * This vector is a copy, so it has no reference to the underlying array, so it can be mutated freely.
+     *
+     * @param col The column index.
+     * @return The column of the matrix
+     */
     public Vector getCol(int col) {
         Vector v = new Vector(rows);
         for (int row = 0; row < rows; row++) {
@@ -76,6 +107,13 @@ public class Matrix {
         return v;
     }
 
+    /**
+     * Performs matrix post-multiplication by the supplied matrix.
+     *
+     * @param b The matrix to post-multiply by.
+     * @return The resultant matrix after the multiplication.
+     * @throws IllegalArgumentException If the number of rows in b != number of cols in this matrix
+     */
     public Matrix mul(Matrix b) {
         if (cols != b.rows) {
             throw new IllegalArgumentException("Invalid matrix dimensions!");
@@ -93,6 +131,12 @@ public class Matrix {
         return result;
     }
 
+    /**
+     * Apply this matrix to the supplied vector. Essentially, this is post-multiplication by the column vector.
+     *
+     * @param v The vector to apply this matrix to.
+     * @return The resultant vector after the multiplication.
+     */
     public Vector apply(Vector v) {
         Matrix m = new Matrix(v.getDimension(), 1, v.getArray());
         return new Vector(mul(m).flatten());

@@ -33,6 +33,13 @@ public class Vector {
         return vector;
     }
 
+    /**
+     * Performs a dot product operation with the supplied vector/\.
+     *
+     * @param v The vector to do the dot product with.
+     * @return The dot product of this vector with the supplied vector.
+     * @throws IllegalArgumentException If the dimensions of the vectors mismatch.
+     */
     public double dot(Vector v) {
         if (v.length != length) {
             throw new IllegalArgumentException("Cannot do dot product with vectors of different length!");
@@ -40,6 +47,13 @@ public class Vector {
         return IntStream.range(0, length).mapToDouble(i -> get(i) * v.get(i)).sum();
     }
 
+    /**
+     * Adds this vector to the supplied vector.
+     *
+     * @param v The vector to add.
+     * @return The resultant vector after addition.
+     * @throws IllegalArgumentException If the dimensions of the vectors mismatch.
+     */
     public Vector add(Vector v) {
         if (v.length != length) {
             throw new IllegalArgumentException("Cannot add vectors of different length!");

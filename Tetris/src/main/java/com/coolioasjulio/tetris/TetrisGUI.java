@@ -15,7 +15,14 @@ import java.util.Map;
 public class TetrisGUI {
 
     private static final int GAME_WIDTH = 10, GAME_HEIGHT = 20;
-    private static final double DIFFICULTY = 0.2; // completely arbitrary, affects slope/curvature of delay curve
+    /**
+     * This value is completely arbitrary. It affects the slope/curvature of the delay curve.
+     * Increasing this value makes the delay drop faster.
+     */
+    private static final double DIFFICULTY = 0.2;
+    /**
+     * The delay, in ms, at level 0 (0-9 lines)
+     */
     private static final double LEVEL_0_DELAY = 400;
 
     private static final Color SIDE_PANEL_COLOR = new Color(0, 0, 128);
@@ -23,7 +30,7 @@ public class TetrisGUI {
     private static final Color GAME_BG_COLOR = new Color(32, 32, 32);
     public static final Color TEXT_COLOR = Color.WHITE;
 
-    private static final boolean MOCK_INPUT = false;
+    private static final boolean MOCK_INPUT = true;
     private static final boolean FULL_SCREEN = true;
 
     private JFrame frame;
@@ -46,27 +53,11 @@ public class TetrisGUI {
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             frame.setUndecorated(true);
         }
-        if (MOCK_INPUT) {
-            frame.addKeyListener(new KeyListener() {
-                @Override
-                public void keyTyped(KeyEvent e) {
-
-                }
-
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    TetrisGUI.this.keyPressed(e.getKeyCode());
-                }
-
-                @Override
-                public void keyReleased(KeyEvent e) {
-
-                }
-            });
-        }
+        addMockInput(); // If we're mocking the inputs (using keyboard) then add that mocked input listener
         frame.setVisible(true);
         if (FULL_SCREEN) resize(); // resize the game to fit different screen sizes
         pane = new TetrisPane(GAME_WIDTH, GAME_HEIGHT);
+        // This panel holds all the game elements
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         panel.setBackground(SIDE_PANEL_COLOR);
@@ -88,10 +79,32 @@ public class TetrisGUI {
         panel.setMaximumSize(size);
         frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
         frame.add(panel);
+        // For some reason, adding the panel to the frame clears the preferred size, so we're setting it again
         panel.setPreferredSize(size);
         if (!FULL_SCREEN) frame.pack();
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    private void addMockInput() {
+        if (MOCK_INPUT) {
+            frame.addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
+
+                }
+
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    TetrisGUI.this.keyPressed(e.getKeyCode());
+                }
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+
+                }
+            });
+        }
     }
 
     private JPanel createSidePanel() {
@@ -117,11 +130,19 @@ public class TetrisGUI {
         lineLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
     }
 
+    /**
+     * This calculates an optimal block size based on the screen resolution.
+     */
     public void resize() {
         int size = frame.getHeight() / (GAME_HEIGHT + 1);
         setBlockSize(size);
     }
 
+    /**
+     * Set the block size, and recalculate all related vaules.
+     *
+     * @param size The size of a block, in pixels.
+     */
     public void setBlockSize(int size) {
         blockSize = size;
         borderWidth = blockSize / 15;
@@ -130,6 +151,7 @@ public class TetrisGUI {
 
     private void renderTask() {
         try {
+            // Render the game at 50Hz
             while (!Thread.interrupted()) {
                 frame.repaint();
                 Thread.sleep(20);
@@ -138,18 +160,25 @@ public class TetrisGUI {
         }
     }
 
+    /**
+     * Play the game.
+     */
     public void playGame() {
         done = false;
+        // Start the render and input threads
         renderThread = new Thread(this::renderTask);
         renderThread.start();
         Thread inputThread = new Thread(this::inputThread);
+        // We only need the input thread if we're not mocking the input
         if (!MOCK_INPUT) {
             inputThread.start();
         }
         while (true) {
             if (!done && !paused) {
+                // Advance a timestep, update the info
                 done = tetris.advanceStep();
                 lineLabel.setText(String.format("Lines: % 4d", tetris.getClearedLines()));
+                // Sleep for the appropriate amount
                 try {
                     Thread.sleep(getDelay());
                 } catch (InterruptedException e) {
@@ -163,6 +192,7 @@ public class TetrisGUI {
 
     private void inputThread() {
         InputManager.enable();
+        // Run on repeat. Consume input from the input manager and fire the keyPressed event
         while (!Thread.interrupted()) {
             int[] codes = InputManager.getInputs();
             for (int keyCode : codes) {
@@ -172,14 +202,23 @@ public class TetrisGUI {
         }
     }
 
+    /**
+     * Calculate the desired delay between timesteps based on the level. This is calibrated, and can be tweaked to adjust difficulty.
+     *
+     * @return The delay between timesteps, in milliseconds.
+     */
     private long getDelay() {
+        // This is essentially a modified softplus function, which is very linear at the beginning, and then asymptotically approaches 0
         int level = tetris.getClearedLines() / 10;
         double a = LEVEL_0_DELAY / Math.log(2.0); // solve for a where f(0) = LEVEL_0_DELAY
         return Math.round(a * Math.log(1.0 + Math.exp(-DIFFICULTY * level)));
     }
 
+    /**
+     * Reset the game to the starting state.
+     */
     private void resetGame() {
-        tetris = new TetrisBase(GAME_WIDTH, GAME_HEIGHT);
+        tetris.reset();
         done = false;
     }
 
@@ -202,25 +241,34 @@ public class TetrisGUI {
                 break;
 
             case KeyEvent.VK_A:
+                // Reset the game if the game is over and A is pressed
                 if (tetris.hasLost()) {
                     resetGame();
                 }
                 break;
 
             case KeyEvent.VK_B:
+                // Exit the game if the game is over and B is pressed
                 if (tetris.hasLost()) {
                     System.exit(0);
                 }
                 break;
 
             case KeyEvent.VK_P:
+                // This is only really possible for mocked input, since the arcade machine has no pause button
                 paused = !paused;
                 break;
         }
     }
 
-    private Color getBlockColor(Piece.PieceType block) {
-        switch (block) {
+    /**
+     * Get the color associated with the piece type.
+     *
+     * @param type The type of piece to get the color for.
+     * @return The color of the supplied piece. The piece should be rendered in this color.
+     */
+    private Color getBlockColor(Piece.PieceType type) {
+        switch (type) {
             case I:
                 return new Color(255, 128, 0);
 
@@ -247,9 +295,19 @@ public class TetrisGUI {
         }
     }
 
+    /**
+     * Draw a block of the supplied piece type at the supplied location.
+     *
+     * @param g    The {@link Graphics} object to use for rendering.
+     * @param x    The x-coordinate of the top left of the block, in pixels.
+     * @param y    The y-coordinate of the top left of the block, in pixels. (In screen space, so +y -> down)
+     * @param type The type of block to draw.
+     */
     private void drawBlock(Graphics g, int x, int y, Piece.PieceType type) {
+        // Draw the block
         g.setColor(getBlockColor(type));
         g.fillRect(x, y, blockSize, blockSize);
+        // Draw the border around the block
         g.setColor(Color.BLACK);
         if (g instanceof Graphics2D) {
             ((Graphics2D) g).setStroke(new BasicStroke(borderWidth));
@@ -257,6 +315,9 @@ public class TetrisGUI {
         g.drawRect(x, y, blockSize, blockSize);
     }
 
+    /**
+     * This is the pane on the side that displays the next piece that will be spawned.
+     */
     private class NextPiecePane extends JPanel {
 
         public NextPiecePane() {
@@ -271,8 +332,10 @@ public class TetrisGUI {
             Piece p = Piece.createPiece(type);
             int width = getWidth() / blockSize;
             int height = getHeight() / blockSize;
+            // Put the piece in the middle of the pane
             p.setPos(width / 2, height / 2);
 
+            // Render all the blocks of the piece
             for (Vector v : p.getGlobalVectors()) {
                 int x = MathUtils.round(v.get(0)) * blockSize;
                 int y = blockSize * (height - MathUtils.round(v.get(1)) - 1);
@@ -282,21 +345,23 @@ public class TetrisGUI {
         }
     }
 
+    /**
+     * This is the main game screen, where the game takes place.
+     */
     private class TetrisPane extends JPanel {
-        private int width, height; // in blocks, not pixels
         private Map<Integer, Font> pixelSizeToFont = new HashMap<>();
 
         public TetrisPane(int width, int height) {
-            this.width = width;
-            this.height = height;
             setPreferredSize(new Dimension(width * blockSize, height * blockSize));
             setMaximumSize(new Dimension(width * blockSize, height * blockSize));
         }
 
         @Override
         public void paintComponent(Graphics g) {
+            // Draw the background
             g.setColor(GAME_BG_COLOR);
             g.fillRect(0, 0, getWidth(), getHeight());
+            // Generate a grid representing the game state, and render all blocks
             Piece.PieceType[][] grid = tetris.generateGrid();
             for (int row = 0; row < grid.length; row++) {
                 for (int col = 0; col < grid[row].length; col++) {
@@ -310,27 +375,34 @@ public class TetrisGUI {
                 }
             }
 
+            // If the player has lost, draw the end game panel, and prompt the user to restart or quit
             if (tetris.hasLost()) {
+                // width and height of the panel in pixels
                 int panelWidth = blockSize * GAME_WIDTH * 4 / 5;
                 int panelHeight = blockSize * GAME_HEIGHT / 4;
 
+                // Used for alignment of all text, center of panel in pixels
                 int centerX = getWidth() / 2;
 
+                // X and Y coordinate of top left of panel, in screen space
                 int panelX = centerX - panelWidth / 2;
                 int panelY = getHeight() / 4;
 
+                // This value will be added to as things get added. It represents the y coordinate of the thing being drawn.
                 int y = panelY - blockSize / 2;
 
+                // Draw the outline of the panel
                 g.setColor(TEXT_COLOR);
                 g.fillRect(panelX, panelY, panelWidth, panelHeight);
 
+                // Draw the panel
                 g.setColor(FRAME_BG_COLOR);
                 int border = blockSize / 8;
                 g.fillRect(panelX + border, panelY + border,
                         panelWidth - 2 * border, panelHeight - 2 * border);
 
-                String s = "You lose!";
-                drawText(g, centerX, y, blockSize * 2, s);
+                // Draw all text on the panel
+                drawText(g, centerX, y, blockSize * 2, "You lose!");
                 y += blockSize * 2;
                 drawText(g, centerX, y, blockSize * 3 / 4, String.format("Lines: % 2d", tetris.getClearedLines()));
 
@@ -341,6 +413,14 @@ public class TetrisGUI {
             }
         }
 
+        /**
+         * Create a font that has approximately the requested height in pixels.
+         *
+         * @param g              The Graphics object to use for Font manipulation
+         * @param font           The base font to use to create new fonts
+         * @param fontSizePixels The requested font height in pixels
+         * @return A new font that has approximately the requested height in pixels
+         */
         private Font getFontWithSize(Graphics g, Font font, int fontSizePixels) {
             Font cached = pixelSizeToFont.get(fontSizePixels);
             if (cached != null && cached.getFontName().equals(font.getFontName())) {
@@ -355,6 +435,15 @@ public class TetrisGUI {
             return f;
         }
 
+        /**
+         * Draws the supplied text at the supplied location, with approximately the supplied height.
+         *
+         * @param g              The Graphics object to use for drawing.
+         * @param x              The x coordinate of the center of the text.
+         * @param y              The y coordinate of the top of the text. (approximately)
+         * @param fontSizePixels The height of the text, in pixels.
+         * @param s              The text to draw.
+         */
         private void drawText(Graphics g, int x, int y, int fontSizePixels, String s) {
             Font f = getFontWithSize(g, g.getFont(), fontSizePixels);
             g.setFont(f);
@@ -362,6 +451,7 @@ public class TetrisGUI {
             int textWidth = metrics.stringWidth(s);
             int textHeight = metrics.getHeight();
             g.setColor(TEXT_COLOR);
+            // drawString() expects x as left and y as baseline, so offset x and y to match this
             g.drawString(s, x - textWidth / 2, y + textHeight);
         }
     }
