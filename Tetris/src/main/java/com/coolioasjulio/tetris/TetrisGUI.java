@@ -30,7 +30,7 @@ public class TetrisGUI {
     private static final Color GAME_BG_COLOR = new Color(32, 32, 32);
     public static final Color TEXT_COLOR = Color.WHITE;
 
-    private static final boolean MOCK_INPUT = true;
+    private static final boolean MOCK_INPUT = false;
     private static final boolean FULL_SCREEN = true;
 
     private JFrame frame;
