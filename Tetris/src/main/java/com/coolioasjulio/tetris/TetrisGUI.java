@@ -9,6 +9,8 @@ import javax.swing.BoxLayout;
 import java.awt.*;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TetrisGUI {
 
@@ -17,7 +19,9 @@ public class TetrisGUI {
     private static final double LEVEL_0_DELAY = 400;
 
     private static final Color SIDE_PANEL_COLOR = new Color(0, 0, 128);
-    private static final Color BACKGROUND_COLOR = new Color(32, 32, 32);
+    private static final Color FRAME_BG_COLOR = Color.BLACK;
+    private static final Color GAME_BG_COLOR = new Color(32, 32, 32);
+    public static final Color TEXT_COLOR = Color.WHITE;
 
     private static final boolean MOCK_INPUT = false;
     private static final boolean FULL_SCREEN = true;
@@ -31,13 +35,13 @@ public class TetrisGUI {
     private int blockSize = 50;
     private int borderWidth = blockSize / 15;
     private int lineLabelSize = blockSize * 7 / 5;
-    private int loseTextSize = blockSize * 6 / 5;
+    private boolean done;
 
     public TetrisGUI() {
         tetris = new TetrisBase(GAME_WIDTH, GAME_HEIGHT);
 
         frame = new JFrame("Tetris");
-        frame.getContentPane().setBackground(Color.BLACK);
+        frame.getContentPane().setBackground(FRAME_BG_COLOR);
         if (FULL_SCREEN) {
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             frame.setUndecorated(true);
@@ -107,7 +111,7 @@ public class TetrisGUI {
         lineLabel.setMinimumSize(labelSize);
         lineLabel.setPreferredSize(labelSize);
         lineLabel.setMaximumSize(labelSize);
-        lineLabel.setForeground(Color.WHITE);
+        lineLabel.setForeground(TEXT_COLOR);
         lineLabel.setFont(new Font("Sans-Serif", Font.PLAIN, lineLabelSize));
         lineLabel.setHorizontalAlignment(JLabel.CENTER);
         lineLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
@@ -122,7 +126,6 @@ public class TetrisGUI {
         blockSize = size;
         borderWidth = blockSize / 15;
         lineLabelSize = blockSize * 7 / 5;
-        loseTextSize = blockSize * 6 / 5;
     }
 
     private void renderTask() {
@@ -136,15 +139,15 @@ public class TetrisGUI {
     }
 
     public void playGame() {
-        boolean done = false;
+        done = false;
         renderThread = new Thread(this::renderTask);
         renderThread.start();
         Thread inputThread = new Thread(this::inputThread);
         if (!MOCK_INPUT) {
             inputThread.start();
         }
-        while (!done) {
-            if (!paused) {
+        while (true) {
+            if (!done && !paused) {
                 done = tetris.advanceStep();
                 lineLabel.setText(String.format("Lines: % 4d", tetris.getClearedLines()));
                 try {
@@ -152,10 +155,10 @@ public class TetrisGUI {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+            } else {
+                Thread.yield();
             }
         }
-        renderThread.interrupt();
-        inputThread.interrupt();
     }
 
     private void inputThread() {
@@ -175,6 +178,11 @@ public class TetrisGUI {
         return Math.round(a * Math.log(1.0 + Math.exp(-DIFFICULTY * level)));
     }
 
+    private void resetGame() {
+        tetris = new TetrisBase(GAME_WIDTH, GAME_HEIGHT);
+        done = false;
+    }
+
     public void keyPressed(int keyCode) {
         switch (keyCode) {
             case KeyEvent.VK_LEFT:
@@ -191,6 +199,18 @@ public class TetrisGUI {
 
             case KeyEvent.VK_DOWN:
                 tetris.down();
+                break;
+
+            case KeyEvent.VK_A:
+                if (tetris.hasLost()) {
+                    resetGame();
+                }
+                break;
+
+            case KeyEvent.VK_B:
+                if (tetris.hasLost()) {
+                    System.exit(0);
+                }
                 break;
 
             case KeyEvent.VK_P:
@@ -264,6 +284,7 @@ public class TetrisGUI {
 
     private class TetrisPane extends JPanel {
         private int width, height; // in blocks, not pixels
+        private Map<Integer, Font> pixelSizeToFont = new HashMap<>();
 
         public TetrisPane(int width, int height) {
             this.width = width;
@@ -274,7 +295,7 @@ public class TetrisGUI {
 
         @Override
         public void paintComponent(Graphics g) {
-            g.setColor(BACKGROUND_COLOR);
+            g.setColor(GAME_BG_COLOR);
             g.fillRect(0, 0, getWidth(), getHeight());
             Piece.PieceType[][] grid = tetris.generateGrid();
             for (int row = 0; row < grid.length; row++) {
@@ -290,17 +311,58 @@ public class TetrisGUI {
             }
 
             if (tetris.hasLost()) {
-                g.setColor(new Color(0, 0, 0, 100));
-                g.fillRect(0, 0, getWidth(), getHeight());
-                g.setColor(Color.WHITE);
-                String text = "You lose!";
-                g.setFont(new Font("Sans-Serif", Font.PLAIN, loseTextSize));
-                int width = g.getFontMetrics().stringWidth(text);
-                int height = g.getFontMetrics().getHeight();
+                int panelWidth = blockSize * GAME_WIDTH * 4 / 5;
+                int panelHeight = blockSize * GAME_HEIGHT / 4;
 
-                g.drawString("You lose!", getWidth() / 2 - width / 2, getHeight() / 2 - height / 2);
-                // TODO: prompt player to quit or play again
+                int centerX = getWidth() / 2;
+
+                int panelX = centerX - panelWidth / 2;
+                int panelY = getHeight() / 4;
+
+                int y = panelY - blockSize / 2;
+
+                g.setColor(TEXT_COLOR);
+                g.fillRect(panelX, panelY, panelWidth, panelHeight);
+
+                g.setColor(FRAME_BG_COLOR);
+                int border = blockSize / 8;
+                g.fillRect(panelX + border, panelY + border,
+                        panelWidth - 2 * border, panelHeight - 2 * border);
+
+                String s = "You lose!";
+                drawText(g, centerX, y, blockSize * 2, s);
+                y += blockSize * 2;
+                drawText(g, centerX, y, blockSize * 3 / 4, String.format("Lines: % 2d", tetris.getClearedLines()));
+
+                y += blockSize * 3 / 4;
+                drawText(g, centerX, y, blockSize, "A - Play again");
+                y += blockSize;
+                drawText(g, centerX, y, blockSize, "B - Quit");
             }
+        }
+
+        private Font getFontWithSize(Graphics g, Font font, int fontSizePixels) {
+            Font cached = pixelSizeToFont.get(fontSizePixels);
+            if (cached != null && cached.getFontName().equals(font.getFontName())) {
+                return cached;
+            }
+            Font f;
+            float size = 1f;
+            while (g.getFontMetrics(f = font.deriveFont(size)).getHeight() < fontSizePixels) {
+                size++;
+            }
+            pixelSizeToFont.put(fontSizePixels, f);
+            return f;
+        }
+
+        private void drawText(Graphics g, int x, int y, int fontSizePixels, String s) {
+            Font f = getFontWithSize(g, g.getFont(), fontSizePixels);
+            g.setFont(f);
+            FontMetrics metrics = g.getFontMetrics();
+            int textWidth = metrics.stringWidth(s);
+            int textHeight = metrics.getHeight();
+            g.setColor(TEXT_COLOR);
+            g.drawString(s, x - textWidth / 2, y + textHeight);
         }
     }
 }
