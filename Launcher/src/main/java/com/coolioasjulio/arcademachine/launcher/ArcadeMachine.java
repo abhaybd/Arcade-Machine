@@ -35,7 +35,7 @@ public abstract class ArcadeMachine {
         System.out.println(Arrays.toString(games));
     }
 
-    protected abstract void resetOnPressedCallbacks();
+    protected abstract void resetEventCallbacks();
 
     private void loadNewGames() {
         USBDeviceDetectorManager driveDetector = new USBDeviceDetectorManager();
@@ -138,7 +138,7 @@ public abstract class ArcadeMachine {
 
     public void launchGame() {
         try {
-            resetOnPressedCallbacks();
+            resetEventCallbacks();
             File game = games[index];
             Process p = Runtime.getRuntime().exec("java -jar " + game.getAbsolutePath());
             Thread logger = new Thread(() -> {
@@ -152,6 +152,7 @@ public abstract class ArcadeMachine {
                     Thread.yield();
                 }
             });
+            logger.setDaemon(true);
             logger.start();
             DataOutputStream out = new DataOutputStream(p.getOutputStream());
             Input.getInstance().addEventCallback((pressed, keycode) -> {

@@ -57,7 +57,7 @@ public class ArcadeMachineGUI extends ArcadeMachine {
     }
 
     @Override
-    protected void resetOnPressedCallbacks() {
+    protected void resetEventCallbacks() {
         Input.getInstance().clearEventCallbacks();
         Input.getInstance().addEventCallback(this::keyEvent);
     }
@@ -84,6 +84,7 @@ public class ArcadeMachineGUI extends ArcadeMachine {
                         ex.printStackTrace();
                     }
                 });
+                waiter.setDaemon(true);
                 waiter.start();
             }
         }

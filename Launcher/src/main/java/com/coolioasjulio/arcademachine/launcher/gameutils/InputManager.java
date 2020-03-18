@@ -45,6 +45,7 @@ public class InputManager {
             prevTickReleased = new HashSet<>();
             prevTickPressed = new HashSet<>();
             inputThread = new Thread(InputManager::inputTask);
+            inputThread.setDaemon(true);
             inputThread.start();
         }
     }
