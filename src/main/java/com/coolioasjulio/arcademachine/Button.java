@@ -1,6 +1,11 @@
 package com.coolioasjulio.arcademachine;
 
 public abstract class Button {
+
+    public enum Event {
+        PRESSED, RELEASED, NONE
+    }
+
     private boolean prevValue = false;
     private int keycode;
 
@@ -12,6 +17,19 @@ public abstract class Button {
 
     public int getKeycode() {
         return keycode;
+    }
+
+    public Event getEvent()
+    {
+        boolean down = isDown();
+        Event e = Event.NONE;
+        if (down != prevValue)
+        {
+            if (down) e = Event.PRESSED;
+            else e = Event.RELEASED;
+            prevValue = down;
+        }
+        return e;
     }
 
     public boolean pressed() {

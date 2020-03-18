@@ -35,7 +35,7 @@ public class ArcadeMachineGUI extends ArcadeMachine {
 
     public void start() {
         this.frame = new JFrame();
-        Input.getInstance().addOnPressedCallback(this::keyPressed);
+        Input.getInstance().addOnPressedCallback(this::keyEvent);
         frame.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -59,10 +59,11 @@ public class ArcadeMachineGUI extends ArcadeMachine {
     @Override
     protected void resetOnPressedCallbacks() {
         Input.getInstance().clearOnPressedCallbacks();
-        Input.getInstance().addOnPressedCallback(this::keyPressed);
+        Input.getInstance().addOnPressedCallback(this::keyEvent);
     }
 
-    public void keyPressed(int keycode) {
+    public void keyEvent(boolean pressed, int keycode) {
+        if (!pressed) return;
         if (!acceptInput) return;
         if (keycode == KeyEvent.VK_DOWN) {
             super.incIndex();

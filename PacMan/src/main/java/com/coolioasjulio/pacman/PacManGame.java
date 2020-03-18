@@ -150,7 +150,7 @@ public abstract class PacManGame {
         // Run until interrupted
         while (!Thread.interrupted()) {
             double dt = Time.deltaTime();
-            InputManager.getInputs(); // Get the recent inputs from the last timestep
+            InputManager.fetchInputs(); // Get the recent inputs from the last timestep
 
             // If the powerup is active and has expired, disable it
             if (powerupActive && System.currentTimeMillis() >= powerupTimeoutTime) {

@@ -4,6 +4,9 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -15,8 +18,9 @@ import java.util.Stack;
  */
 public class InputManager {
     private static DataInputStream in;
-    private static Stack<Integer> currTickInputs;
-    private static Stack<Integer> prevTickInputs;
+    private static Set<Integer> currentlyDown;
+    private static Set<Integer> currTickPressed, currTickReleased;
+    private static Set<Integer> prevTickPressed, prevTickReleased;
     private static final Object currTickLock = new Object();
     private static final Object prevTickLock = new Object();
     private static Thread inputThread;
@@ -36,8 +40,11 @@ public class InputManager {
     public static void enable(InputStream inputStream) {
         if (inputThread == null || !inputThread.isAlive()) {
             in = new DataInputStream(inputStream);
-            currTickInputs = new Stack<>();
-            prevTickInputs = new Stack<>();
+            currentlyDown = Collections.synchronizedSet(new HashSet<>());
+            currTickPressed = new HashSet<>();
+            currTickReleased = new HashSet<>();
+            prevTickReleased = new HashSet<>();
+            prevTickPressed = new HashSet<>();
             inputThread = new Thread(InputManager::inputTask);
             inputThread.start();
         }
@@ -46,13 +53,23 @@ public class InputManager {
     private static void inputTask() {
         while (!Thread.interrupted()) {
             int i;
+            boolean pressed;
             try {
+                pressed = in.readBoolean();
                 i = in.readInt();
             } catch (IOException e) {
                 break;
             }
             synchronized (currTickLock) {
-                currTickInputs.push(i);
+                if (pressed) {
+                    currTickPressed.add(i);
+                    currTickReleased.remove(i);
+                    currentlyDown.add(i);
+                } else {
+                    currTickPressed.remove(i);
+                    currTickReleased.add(i);
+                    currentlyDown.remove(i);
+                }
             }
         }
     }
@@ -66,25 +83,61 @@ public class InputManager {
      */
     public static boolean keyPressed(int key) {
         synchronized (prevTickLock) {
-            return prevTickInputs.contains(key);
+            return prevTickPressed.contains(key);
         }
     }
 
-    /**
-     * Get the latest inputs from the input stream since the last getInputs() call.
-     *
-     * @return int array containing all latest inputs, in reverse chronological order.
-     */
-    public static int[] getInputs() {
-        Integer[] inputs;
+    public static boolean keyReleased(int key) {
+        synchronized (prevTickLock) {
+            return prevTickReleased.contains(key);
+        }
+    }
+
+    public static boolean keyDown(int key) {
+        return currentlyDown.contains(key);
+    }
+
+    public static void fetchInputs() {
+        Integer[] pressed, released;
         synchronized (currTickLock) {
-            inputs = currTickInputs.toArray(new Integer[0]);
-            currTickInputs.clear();
+            pressed = currTickPressed.toArray(new Integer[0]);
+            released = currTickReleased.toArray(new Integer[0]);
+            currTickPressed.clear();
+            currTickReleased.clear();
         }
         synchronized (prevTickLock) {
-            prevTickInputs.clear();
-            prevTickInputs.addAll(Arrays.asList(inputs));
+            prevTickPressed.clear();
+            prevTickReleased.clear();
+            prevTickPressed.addAll(Arrays.asList(pressed));
+            prevTickReleased.addAll(Arrays.asList(released));
         }
-        return Arrays.stream(inputs).mapToInt(Integer::intValue).toArray();
+    }
+
+    public static int[] getPressed()
+    {
+        Integer[] pressed;
+        synchronized (prevTickLock) {
+            pressed = prevTickPressed.toArray(new Integer[0]);
+        }
+        return unboxArray(pressed);
+    }
+
+    public static int[] getReleased()
+    {
+        Integer[] released;
+        synchronized (prevTickLock) {
+            released = prevTickReleased.toArray(new Integer[0]);
+        }
+        return unboxArray(released);
+    }
+
+    public static int[] getDown()
+    {
+        return unboxArray(currentlyDown.toArray(new Integer[0]));
+    }
+
+    private static int[] unboxArray(Integer[] arr)
+    {
+        return Arrays.stream(arr).mapToInt(Integer::intValue).toArray();
     }
 }

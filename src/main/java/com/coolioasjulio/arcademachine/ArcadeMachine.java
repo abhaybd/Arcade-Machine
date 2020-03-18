@@ -141,8 +141,9 @@ public abstract class ArcadeMachine {
             File game = games[index];
             Process p = Runtime.getRuntime().exec("java -jar " + game.getAbsolutePath());
             DataOutputStream out = new DataOutputStream(p.getOutputStream());
-            Input.getInstance().addOnPressedCallback(keycode -> {
+            Input.getInstance().addOnPressedCallback((pressed, keycode) -> {
                 try {
+                    out.writeBoolean(pressed);
                     out.writeInt(keycode);
                     out.flush();
                 } catch (IOException ignored) {

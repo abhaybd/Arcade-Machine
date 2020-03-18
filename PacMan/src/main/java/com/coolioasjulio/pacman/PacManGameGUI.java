@@ -124,7 +124,7 @@ public class PacManGameGUI extends PacManGame {
             // See if the player wants to play again or not
             Boolean playAgain = null;
             do {
-                InputManager.getInputs();
+                InputManager.fetchInputs();
                 if (InputManager.keyPressed(KeyEvent.VK_A)) {
                     playAgain = true;
                 } else if (InputManager.keyPressed(KeyEvent.VK_B)) {

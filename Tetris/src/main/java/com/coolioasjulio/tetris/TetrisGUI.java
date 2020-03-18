@@ -9,8 +9,11 @@ import javax.swing.BoxLayout;
 import java.awt.*;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class TetrisGUI {
 
@@ -194,7 +197,8 @@ public class TetrisGUI {
         InputManager.enable();
         // Run on repeat. Consume input from the input manager and fire the keyPressed event
         while (!Thread.interrupted()) {
-            int[] codes = InputManager.getInputs();
+            InputManager.fetchInputs();
+            int[] codes = InputManager.getPressed();
             for (int keyCode : codes) {
                 keyPressed(keyCode);
             }

@@ -53,7 +53,7 @@ class InputManagerTest {
             }
             Thread.sleep(10);
             assertFalse(InputManager.keyPressed(3));
-            InputManager.getInputs();
+            InputManager.fetchInputs();
             assertTrue(InputManager.keyPressed(3));
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -70,7 +70,8 @@ class InputManagerTest {
                 dataOutputStream.flush();
             }
             Thread.sleep(10);
-            assertArrayEquals(arr, InputManager.getInputs());
+            InputManager.fetchInputs();
+            assertArrayEquals(arr, InputManager.getPressed());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }

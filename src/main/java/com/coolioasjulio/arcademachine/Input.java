@@ -5,6 +5,7 @@ import com.studiohartman.jamepad.ControllerState;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class Input {
@@ -20,7 +21,7 @@ public class Input {
     private Joystick joystick;
     private Direction lastDirection;
     private Thread inputThread;
-    private Consumer<Integer> onPressed;
+    private BiConsumer<Boolean, Integer> onPressed;
 
     private Input() {
         if (ArcadeMachineGUI.MOCK_INPUT) {
@@ -33,7 +34,6 @@ public class Input {
             buttonB = new MockButton(KeyEvent.VK_B);
             joystick = new MockJoystick();
         } else {
-            // TODO: test this with the actual hardware
             final ControllerManager manager = new ControllerManager();
             manager.initSDLGamepad();
             System.out.printf("Detected %d controllers\n", manager.getNumControllers());
@@ -41,35 +41,44 @@ public class Input {
             buttonB = new HardwareButton(KeyEvent.VK_B, () -> manager.getState(0).b);
             joystick = new HardwareJoystick(() -> manager.getState(0));
         }
-        onPressed = i -> {
+        onPressed = (p, i) -> {
         };
         inputThread = new Thread(this::inputTask);
         inputThread.setDaemon(true);
         inputThread.start();
     }
 
-    public void addOnPressedCallback(Consumer<Integer> callback) {
+    public void addOnPressedCallback(BiConsumer<Boolean, Integer> callback) {
         onPressed = onPressed.andThen(callback);
     }
 
     public void clearOnPressedCallbacks() {
-        onPressed = i -> {
+        onPressed = (p, i) -> {
         };
     }
 
     private void inputTask() {
         while (!Thread.interrupted()) {
-            if (buttonA.pressed()) {
-                onPressed.accept(buttonA.getKeycode());
+            Button.Event aEvent = buttonA.getEvent();
+            Button.Event bEvent = buttonB.getEvent();
+
+            if (aEvent != Button.Event.NONE)
+            {
+                onPressed.accept(aEvent == Button.Event.PRESSED, buttonA.getKeycode());
             }
 
-            if (buttonB.pressed()) {
-                onPressed.accept(buttonB.getKeycode());
+            if (bEvent != Button.Event.NONE)
+            {
+                onPressed.accept(bEvent == Button.Event.PRESSED, buttonB.getKeycode());
             }
 
             Direction dir = joystick.getDirection();
             if (dir != lastDirection && dir != null) {
-                onPressed.accept(dir.getKeycode());
+                if (lastDirection != null)
+                {
+                    onPressed.accept(false, lastDirection.getKeycode());
+                }
+                onPressed.accept(true, dir.getKeycode());
             }
             lastDirection = dir;
             Thread.yield();
