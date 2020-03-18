@@ -9,6 +9,9 @@ import javax.swing.BoxLayout;
 import java.awt.*;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +27,9 @@ public class TetrisGUI {
      * The delay, in ms, at level 0 (0-9 lines)
      */
     private static final double LEVEL_0_DELAY = 400;
+
+    private static final long BURST_START_DELAY = 500;
+    private static final long BURST_DELAY = 80;
 
     private static final Color SIDE_PANEL_COLOR = new Color(0, 0, 128);
     private static final Color FRAME_BG_COLOR = Color.BLACK;
@@ -43,9 +49,14 @@ public class TetrisGUI {
     private int borderWidth = blockSize / 15;
     private int lineLabelSize = blockSize * 7 / 5;
     private boolean done;
+    private Map<Integer, Long> burstKeys;
 
     public TetrisGUI() {
         tetris = new TetrisBase(GAME_WIDTH, GAME_HEIGHT);
+        burstKeys = new HashMap<>();
+        burstKeys.put(KeyEvent.VK_DOWN, Long.MAX_VALUE);
+        burstKeys.put(KeyEvent.VK_LEFT, Long.MAX_VALUE);
+        burstKeys.put(KeyEvent.VK_RIGHT, Long.MAX_VALUE);
 
         frame = new JFrame("Tetris");
         frame.getContentPane().setBackground(FRAME_BG_COLOR);
@@ -198,6 +209,20 @@ public class TetrisGUI {
             int[] codes = InputManager.getPressed();
             for (int keyCode : codes) {
                 keyPressed(keyCode);
+            }
+
+            long time = System.currentTimeMillis();
+            for (int code : burstKeys.keySet()) {
+                if (InputManager.keyPressed(code)) {
+                    burstKeys.put(code, time + BURST_START_DELAY);
+                } else if (InputManager.keyReleased(code)) {
+                    burstKeys.put(code, Long.MAX_VALUE);
+                }
+
+                if (time >= burstKeys.get(code)) {
+                    burstKeys.put(code, time + BURST_DELAY);
+                    keyPressed(code);
+                }
             }
             Thread.yield();
         }

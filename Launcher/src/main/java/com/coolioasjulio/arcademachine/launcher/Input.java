@@ -1,7 +1,6 @@
 package com.coolioasjulio.arcademachine.launcher;
 
 import com.studiohartman.jamepad.ControllerManager;
-import com.studiohartman.jamepad.ControllerState;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -20,7 +19,7 @@ public class Input {
     private Joystick joystick;
     private Direction lastDirection;
     private Thread inputThread;
-    private BiConsumer<Boolean, Integer> onPressed;
+    private BiConsumer<Boolean, Integer> onEvent;
 
     private Input() {
         if (ArcadeMachineGUI.MOCK_INPUT) {
@@ -40,7 +39,7 @@ public class Input {
             buttonB = new HardwareButton(KeyEvent.VK_B, () -> manager.getState(0).b);
             joystick = new HardwareJoystick(() -> manager.getState(0));
         }
-        onPressed = (p, i) -> {
+        onEvent = (p, i) -> {
         };
         inputThread = new Thread(this::inputTask);
         inputThread.setDaemon(true);
@@ -48,11 +47,11 @@ public class Input {
     }
 
     public void addEventCallback(BiConsumer<Boolean, Integer> callback) {
-        onPressed = onPressed.andThen(callback);
+        onEvent = onEvent.andThen(callback);
     }
 
     public void clearEventCallbacks() {
-        onPressed = (p, i) -> {
+        onEvent = (p, i) -> {
         };
     }
 
@@ -63,23 +62,26 @@ public class Input {
 
             if (aEvent != Button.Event.NONE)
             {
-                onPressed.accept(aEvent == Button.Event.PRESSED, buttonA.getKeycode());
+                onEvent.accept(aEvent == Button.Event.PRESSED, buttonA.getKeycode());
             }
 
             if (bEvent != Button.Event.NONE)
             {
-                onPressed.accept(bEvent == Button.Event.PRESSED, buttonB.getKeycode());
+                onEvent.accept(bEvent == Button.Event.PRESSED, buttonB.getKeycode());
             }
 
             Direction dir = joystick.getDirection();
-            if (dir != lastDirection && dir != null) {
+            if (dir != lastDirection) {
                 if (lastDirection != null)
                 {
-                    onPressed.accept(false, lastDirection.getKeycode());
+                    onEvent.accept(false, lastDirection.getKeycode());
                 }
-                onPressed.accept(true, dir.getKeycode());
+                if (dir != null)
+                {
+                    onEvent.accept(true, dir.getKeycode());
+                }
+                lastDirection = dir;
             }
-            lastDirection = dir;
             Thread.yield();
         }
     }

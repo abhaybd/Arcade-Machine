@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public abstract class ArcadeMachine {
@@ -140,6 +141,18 @@ public abstract class ArcadeMachine {
             resetOnPressedCallbacks();
             File game = games[index];
             Process p = Runtime.getRuntime().exec("java -jar " + game.getAbsolutePath());
+            Thread logger = new Thread(() -> {
+                Scanner in = new Scanner(p.getInputStream());
+                while (!Thread.interrupted()) {
+                    try {
+                        System.out.println(in.nextLine());
+                    } catch (NoSuchElementException e) {
+                        break;
+                    }
+                    Thread.yield();
+                }
+            });
+            logger.start();
             DataOutputStream out = new DataOutputStream(p.getOutputStream());
             Input.getInstance().addEventCallback((pressed, keycode) -> {
                 try {
@@ -150,6 +163,7 @@ public abstract class ArcadeMachine {
                 }
             });
             p.waitFor();
+            logger.interrupt();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }

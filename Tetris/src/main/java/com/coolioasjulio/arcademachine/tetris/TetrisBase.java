@@ -294,7 +294,6 @@ public class TetrisBase {
     private void newFallingPiece() {
         // Instantiate a new piece to fall, and place it in the starting position
         fallingPiece = Piece.createPiece(nextPieceType);
-        System.out.println("new piece: " + fallingPiece.getType().name());
         fallingPiece.setPos(startX, startY);
         // Randomly select the next piece type
         nextPieceType = Piece.PieceType.values()[random.nextInt(Piece.PieceType.values().length)];
