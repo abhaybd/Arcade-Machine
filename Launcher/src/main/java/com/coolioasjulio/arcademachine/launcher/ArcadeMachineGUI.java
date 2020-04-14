@@ -1,10 +1,12 @@
 package com.coolioasjulio.arcademachine.launcher;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,10 +51,10 @@ public class ArcadeMachineGUI extends ArcadeMachine {
                 acceptInput = false;
             }
         });
-        frame.add(new GameChooserPanel());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setUndecorated(true);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.add(new GameChooserPanel());
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
 
@@ -94,9 +96,25 @@ public class ArcadeMachineGUI extends ArcadeMachine {
     private class GameChooserPanel extends JPanel {
 
         private Map<Integer, Font> pixelSizeToFont;
+        private Image titleImage;
+        private boolean failedToLoad = false;
 
         public GameChooserPanel() {
             pixelSizeToFont = new HashMap<>();
+        }
+
+        private void loadImgIfNecessary() {
+            if (titleImage == null && !failedToLoad) {
+                try {
+                    titleImage = ImageIO.read(getClass().getResourceAsStream("/title.png"));
+                    double scaleFactor = (getHeight()/4.0) / titleImage.getHeight(null);
+                    titleImage = titleImage.getScaledInstance((int)(titleImage.getWidth(null) * scaleFactor),
+                            (int) (titleImage.getHeight(null) * scaleFactor), Image.SCALE_SMOOTH);
+                } catch (IOException e) {
+                    failedToLoad = true;
+                    e.printStackTrace();
+                }
+            }
         }
 
         private Font getFontWithSize(Graphics g, Font font, int fontSizePixels) {
@@ -122,10 +140,15 @@ public class ArcadeMachineGUI extends ArcadeMachine {
             g.setColor(BG_COLOR);
             g.fillRect(0, 0, getWidth(), getHeight());
 
-            g.setFont(getFontWithSize(g, g.getFont(), getHeight() / 8));
-            g.setColor(Color.RED);
-            String title = "Arcade Machine!";
-            g.drawString(title, getWidth() / 2 - g.getFontMetrics().stringWidth(title) / 2, getHeight() / 8);
+            loadImgIfNecessary();
+            if (titleImage != null) {
+                g.drawImage(titleImage, getWidth()/2 - titleImage.getWidth(null)/2, 0, null);
+            } else {
+                g.setFont(getFontWithSize(g, g.getFont(), getHeight() / 8));
+                g.setColor(Color.RED);
+                String title = "Arcade Machine!";
+                g.drawString(title, getWidth() / 2 - g.getFontMetrics().stringWidth(title) / 2, getHeight() / 8);
+            }
 
             int startY = getHeight() * 3 / 8;
             int y = startY;
