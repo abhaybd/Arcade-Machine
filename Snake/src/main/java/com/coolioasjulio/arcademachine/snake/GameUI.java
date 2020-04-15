@@ -1,6 +1,8 @@
 package com.coolioasjulio.arcademachine.snake;
 
 import com.coolioasjulio.arcademachine.launcher.gameutils.InputManager;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -184,7 +186,7 @@ public class GameUI extends Game {
         root.setLayout(new BorderLayout(0, 0));
         root.add(gamePanel, BorderLayout.CENTER);
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel1.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         panel1.setBackground(new Color(-16777216));
         root.add(panel1, BorderLayout.NORTH);
         timeLabel = new JLabel();
@@ -193,14 +195,14 @@ public class GameUI extends Game {
         if (timeLabelFont != null) timeLabel.setFont(timeLabelFont);
         timeLabel.setForeground(new Color(-1));
         timeLabel.setText("Label");
-        panel1.add(timeLabel, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(timeLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         levelLabel = new JLabel();
         levelLabel.setBackground(new Color(-16777216));
         Font levelLabelFont = this.$$$getFont$$$(null, -1, 26, levelLabel.getFont());
         if (levelLabelFont != null) levelLabel.setFont(levelLabelFont);
         levelLabel.setForeground(new Color(-1));
         levelLabel.setText("Label");
-        panel1.add(levelLabel, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(levelLabel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

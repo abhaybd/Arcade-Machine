@@ -16,16 +16,16 @@ public class Game {
      * The delay, in ms, at level 0
      */
     private static final double LEVEL_0_DELAY = 300;
-    
+
     private int width, height;
     private int level;
     private Snake snake;
     private Coord pellet;
-    
+
     public Game(int width, int height) {
         this.width = width;
         this.height = height;
-        
+
         reset();
     }
 
@@ -110,7 +110,7 @@ public class Game {
     }
 
     public void reset() {
-        snake = new Snake(new Coord(width/2, height/2), new Coord(width/2, height/2+1));
+        snake = new Snake(new Coord(width / 2, height / 2), new Coord(width / 2, height / 2 + 1));
         level = 0;
         placePellet();
         onReset();

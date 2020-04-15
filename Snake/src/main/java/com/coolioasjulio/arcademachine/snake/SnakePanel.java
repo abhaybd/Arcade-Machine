@@ -34,10 +34,10 @@ public class SnakePanel extends JPanel {
         g.setColor(BACKGROUND_COLOR);
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        origin = new Coord(getWidth()/2 - gameWidth*blockSize/2, 0);
+        origin = new Coord(getWidth() / 2 - gameWidth * blockSize / 2, 0);
 
         g.setColor(Color.WHITE);
-        g.drawRect(origin.getX(), origin.getY(), game.getWidth()*blockSize, game.getHeight()*blockSize);
+        g.drawRect(origin.getX(), origin.getY(), game.getWidth() * blockSize, game.getHeight() * blockSize);
 
         Coord pellet = game.getPellet();
         g.setColor(PELLET_COLOR);
@@ -60,8 +60,8 @@ public class SnakePanel extends JPanel {
     }
 
     private void drawDeathScreen(Graphics g) {
-        int panelWidth = blockSize * 7*game.getWidth()/8;
-        int panelHeight = blockSize * game.getHeight()/2;
+        int panelWidth = blockSize * 7 * game.getWidth() / 8;
+        int panelHeight = blockSize * game.getHeight() / 2;
 
         int centerX = getWidth() / 2;
 
