@@ -2,22 +2,24 @@ package com.coolioasjulio.arcademachine.snake;
 
 import com.coolioasjulio.arcademachine.launcher.gameutils.InputManager;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.*;
 
 public class GameUI extends Game {
-    public static void main(String[] args) {
-        GameUI g = new GameUI();
-        JFrame frame = new JFrame();
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        frame.add(g.root);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-
-        g.playGame();
-    }
+    private static final boolean MOCK_INPUT = true;
 
     private SnakePanel gamePanel;
-    private JPanel root;
+    JPanel root;
+    private JLabel timeLabel;
+    private JLabel levelLabel;
+    private long startTime;
 
     private Thread inputThread;
     private final Object snakeLock = new Object();
@@ -30,11 +32,19 @@ public class GameUI extends Game {
     }
 
     public void playGame() {
-        InputManager.enable();
+        if (MOCK_INPUT) {
+            mockInput();
+        } else {
+            InputManager.enable();
+        }
         inputThread = new Thread(this::inputTask);
         inputThread.setDaemon(true);
         inputThread.start();
+        startTime = System.currentTimeMillis();
+        reset();
         while (!Thread.interrupted()) {
+            DateFormat df = new SimpleDateFormat("mm:ss");
+            timeLabel.setText(df.format(new Date(System.currentTimeMillis() - startTime)));
             gamePanel.repaint();
             if (update()) {
                 break;
@@ -48,9 +58,48 @@ public class GameUI extends Game {
         }
     }
 
+    private void mockInput() {
+        try {
+            PipedInputStream in = new PipedInputStream();
+            DataOutputStream out = new DataOutputStream(new PipedOutputStream(in));
+            gamePanel.addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
+
+                }
+
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    try {
+                        out.writeBoolean(true);
+                        out.writeInt(e.getKeyCode());
+                        out.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    try {
+                        out.writeBoolean(false);
+                        out.writeInt(e.getKeyCode());
+                        out.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+            gamePanel.requestFocusInWindow();
+            InputManager.enable(in);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onLevelUp() {
-        super.onLevelUp();
+        if (levelLabel != null) levelLabel.setText("Level: " + getLevel());
     }
 
     @Override

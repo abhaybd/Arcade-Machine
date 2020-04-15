@@ -109,6 +109,7 @@ public class Game {
         snake = new Snake(new Coord(width/2, height/2), new Coord(width/2, height/2+1));
         level = 0;
         placePellet();
+        onLevelUp();
     }
 
     private void placePellet() {
