@@ -67,6 +67,10 @@ public class Game {
         return false;
     }
 
+    public void onReset() {
+        // Override me!
+    }
+
     public void onLevelUp() {
         // Override me!
     }
@@ -109,7 +113,7 @@ public class Game {
         snake = new Snake(new Coord(width/2, height/2), new Coord(width/2, height/2+1));
         level = 0;
         placePellet();
-        onLevelUp();
+        onReset();
     }
 
     private void placePellet() {

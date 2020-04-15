@@ -1,7 +1,9 @@
 package com.coolioasjulio.arcademachine.snake;
 
 import java.awt.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.*;
 
 public class SnakePanel extends JPanel {
@@ -12,9 +14,16 @@ public class SnakePanel extends JPanel {
     private Game game;
     private int blockSize;
     private Coord origin;
+    private boolean dead;
+    private Map<Integer, Font> pixelSizeToFont;
 
     public SnakePanel(Game game) {
         this.game = game;
+        pixelSizeToFont = new HashMap<>();
+    }
+
+    public void setDead(boolean dead) {
+        this.dead = dead;
     }
 
     @Override
@@ -44,6 +53,71 @@ public class SnakePanel extends JPanel {
             Coord c = blocks.get(i).getCoord();
             g.fillRect(toPixelsX(c.getX()), toPixelsY(c.getY()), blockSize, blockSize);
         }
+
+        if (dead) {
+            drawDeathScreen(g);
+        }
+    }
+
+    private void drawDeathScreen(Graphics g) {
+        int panelWidth = blockSize * 7*game.getWidth()/8;
+        int panelHeight = blockSize * game.getHeight()/2;
+
+        int centerX = getWidth() / 2;
+
+        int panelX = centerX - panelWidth / 2;
+        int panelY = getHeight() / 4;
+
+        int y = panelY;
+
+        g.setColor(Color.WHITE);
+        g.fillRect(panelX, panelY, panelWidth, panelHeight);
+
+        g.setColor(BACKGROUND_COLOR);
+        int border = blockSize / 4;
+        g.fillRect(panelX + border, panelY + border,
+                panelWidth - 2 * border, panelHeight - 2 * border);
+
+        String s = "You died!";
+        drawText(g, centerX, y, blockSize * 4, s);
+        y += blockSize * 4;
+        drawText(g, centerX, y, blockSize * 3 / 2, String.format("Level: % 2d", game.getLevel()));
+
+        y += blockSize * 3 / 2;
+        drawText(g, centerX - panelWidth / 4, y, blockSize * 3 / 2, "A - Play again");
+        drawText(g, centerX + panelWidth / 4, y, blockSize * 3 / 2, "B - Quit");
+    }
+
+    /**
+     * Create a font that has approximately the requested height in pixels.
+     *
+     * @param g              The Graphics object to use for Font manipulation
+     * @param font           The base font to use to create new fonts
+     * @param fontSizePixels The requested font height in pixels
+     * @return A new font that has approximately the requested height in pixels
+     */
+    private Font getFontWithSize(Graphics g, Font font, int fontSizePixels) {
+        Font cached = pixelSizeToFont.get(fontSizePixels);
+        if (cached != null && cached.getFontName().equals(font.getFontName())) {
+            return cached;
+        }
+        Font f;
+        float size = 1f;
+        while (g.getFontMetrics(f = font.deriveFont(size)).getHeight() < fontSizePixels) {
+            size++;
+        }
+        pixelSizeToFont.put(fontSizePixels, f);
+        return f;
+    }
+
+    private void drawText(Graphics g, int x, int y, int fontSizePixels, String s) {
+        Font f = getFontWithSize(g, g.getFont(), fontSizePixels);
+        g.setFont(f);
+        FontMetrics metrics = g.getFontMetrics();
+        int textWidth = metrics.stringWidth(s);
+        int textHeight = metrics.getHeight();
+        g.setColor(Color.WHITE);
+        g.drawString(s, x - textWidth / 2, y + textHeight);
     }
 
     private int toPixelsX(int blocks) {

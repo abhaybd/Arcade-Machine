@@ -23,6 +23,8 @@ public class GameUI extends Game {
 
     private Thread inputThread;
     private final Object snakeLock = new Object();
+    private volatile Boolean restart = null;
+    private final Object deathButtonLock = new Object();
     public GameUI() {
         super(20, 20);
     }
@@ -41,6 +43,7 @@ public class GameUI extends Game {
         inputThread.setDaemon(true);
         inputThread.start();
         startTime = System.currentTimeMillis();
+        gamePanel.setDead(false);
         reset();
         while (!Thread.interrupted()) {
             DateFormat df = new SimpleDateFormat("mm:ss");
@@ -98,14 +101,34 @@ public class GameUI extends Game {
     }
 
     @Override
+    public void onReset() {
+        onLevelUp();
+        if (gamePanel != null) gamePanel.setDead(false);
+    }
+
+    @Override
     public void onLevelUp() {
         if (levelLabel != null) levelLabel.setText("Level: " + getLevel());
     }
 
     @Override
     public boolean onDeath() {
-        System.out.println("You died!");
-        return super.onDeath();
+        try {
+            System.out.println("You died!");
+            Thread.sleep(1000);
+            gamePanel.setDead(true);
+            gamePanel.repaint();
+            restart = null;
+            synchronized (deathButtonLock) {
+                while (restart == null) {
+                    deathButtonLock.wait();
+                }
+            }
+            return restart;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return true;
+        }
     }
 
     private void inputTask() {
@@ -125,6 +148,13 @@ public class GameUI extends Game {
             if (dir != null) {
                 synchronized (snakeLock) {
                     super.turnTo(dir);
+                }
+            }
+
+            if (InputManager.keyPressed(KeyEvent.VK_A) || InputManager.keyPressed(KeyEvent.VK_B)) {
+                restart = InputManager.keyPressed(KeyEvent.VK_A);
+                synchronized (deathButtonLock) {
+                    deathButtonLock.notify();
                 }
             }
 

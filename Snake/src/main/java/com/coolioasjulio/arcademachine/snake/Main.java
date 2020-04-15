@@ -1,5 +1,6 @@
 package com.coolioasjulio.arcademachine.snake;
 
+import java.awt.event.WindowEvent;
 import javax.swing.*;
 
 public class Main {
@@ -14,5 +15,6 @@ public class Main {
         frame.setVisible(true);
 
         g.playGame();
+        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
     }
 }
