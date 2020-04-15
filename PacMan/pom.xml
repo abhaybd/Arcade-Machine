@@ -43,7 +43,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        com.coolioasjulio.arcademachine.launcher.pacman.Main
+                                        com.coolioasjulio.arcademachine.pacman.Main
                                     </mainClass>
                                 </manifest>
                             </archive>

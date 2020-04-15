@@ -1,4 +1,4 @@
-package com.coolioasjulio.arcademachine.launcher.pacman.engine;
+package com.coolioasjulio.arcademachine.pacman.engine;
 
 import java.util.Collections;
 import java.util.Comparator;

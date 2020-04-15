@@ -1,5 +1,8 @@
 package com.coolioasjulio.arcademachine.launcher.pacman;
 
+import com.coolioasjulio.arcademachine.pacman.Direction;
+import com.coolioasjulio.arcademachine.pacman.LevelMap;
+import com.coolioasjulio.arcademachine.pacman.PathFinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

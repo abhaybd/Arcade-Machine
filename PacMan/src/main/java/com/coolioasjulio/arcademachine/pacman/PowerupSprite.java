@@ -1,8 +1,8 @@
-package com.coolioasjulio.arcademachine.launcher.pacman;
+package com.coolioasjulio.arcademachine.pacman;
 
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.BoxCollider;
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.Drawer;
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.Sprite;
+import com.coolioasjulio.arcademachine.pacman.engine.BoxCollider;
+import com.coolioasjulio.arcademachine.pacman.engine.Drawer;
+import com.coolioasjulio.arcademachine.pacman.engine.Sprite;
 
 import java.awt.*;
 

@@ -1,6 +1,7 @@
 package com.coolioasjulio.arcademachine.launcher.pacman;
 
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.GameObject;
+import com.coolioasjulio.arcademachine.pacman.Utils;
+import com.coolioasjulio.arcademachine.pacman.engine.GameObject;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

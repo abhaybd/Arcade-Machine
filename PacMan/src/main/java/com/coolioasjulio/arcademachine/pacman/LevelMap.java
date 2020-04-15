@@ -1,7 +1,7 @@
-package com.coolioasjulio.arcademachine.launcher.pacman;
+package com.coolioasjulio.arcademachine.pacman;
 
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.BoxCollider;
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.Coord;
+import com.coolioasjulio.arcademachine.pacman.engine.BoxCollider;
+import com.coolioasjulio.arcademachine.pacman.engine.Coord;
 
 import java.awt.image.BufferedImage;
 import java.awt.Color;

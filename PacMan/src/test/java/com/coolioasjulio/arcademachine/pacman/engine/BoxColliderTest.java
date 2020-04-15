@@ -1,4 +1,4 @@
-package com.coolioasjulio.arcademachine.launcher.pacman.engine;
+package com.coolioasjulio.arcademachine.pacman.engine;
 
 import org.junit.jupiter.api.Test;
 

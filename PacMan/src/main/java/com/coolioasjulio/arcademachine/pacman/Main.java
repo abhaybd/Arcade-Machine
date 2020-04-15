@@ -1,4 +1,4 @@
-package com.coolioasjulio.arcademachine.launcher.pacman;
+package com.coolioasjulio.arcademachine.pacman;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;

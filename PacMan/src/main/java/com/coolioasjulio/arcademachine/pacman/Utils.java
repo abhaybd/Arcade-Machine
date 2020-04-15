@@ -1,7 +1,7 @@
-package com.coolioasjulio.arcademachine.launcher.pacman;
+package com.coolioasjulio.arcademachine.pacman;
 
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.BoxCollider;
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.GameObject;
+import com.coolioasjulio.arcademachine.pacman.engine.BoxCollider;
+import com.coolioasjulio.arcademachine.pacman.engine.GameObject;
 
 public class Utils {
     public static boolean inRange(int num, int low, int high) {

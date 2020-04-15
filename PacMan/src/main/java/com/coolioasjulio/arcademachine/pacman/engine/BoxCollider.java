@@ -1,6 +1,6 @@
-package com.coolioasjulio.arcademachine.launcher.pacman.engine;
+package com.coolioasjulio.arcademachine.pacman.engine;
 
-import com.coolioasjulio.arcademachine.launcher.pacman.Utils;
+import com.coolioasjulio.arcademachine.pacman.Utils;
 
 import java.util.Objects;
 

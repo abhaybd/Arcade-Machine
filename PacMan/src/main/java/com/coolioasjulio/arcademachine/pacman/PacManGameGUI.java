@@ -1,8 +1,8 @@
-package com.coolioasjulio.arcademachine.launcher.pacman;
+package com.coolioasjulio.arcademachine.pacman;
 
 import com.coolioasjulio.arcademachine.launcher.gameutils.InputManager;
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.AwtGraphicsAdapter;
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.Drawer;
+import com.coolioasjulio.arcademachine.pacman.engine.AwtGraphicsAdapter;
+import com.coolioasjulio.arcademachine.pacman.engine.Drawer;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

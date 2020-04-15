@@ -1,10 +1,10 @@
-package com.coolioasjulio.arcademachine.launcher.pacman.behaviors;
+package com.coolioasjulio.arcademachine.pacman.behaviors;
 
-import com.coolioasjulio.arcademachine.launcher.pacman.Direction;
-import com.coolioasjulio.arcademachine.launcher.pacman.Ghost;
-import com.coolioasjulio.arcademachine.launcher.pacman.LevelMap;
-import com.coolioasjulio.arcademachine.launcher.pacman.Utils;
-import com.coolioasjulio.arcademachine.launcher.pacman.PacManGame;
+import com.coolioasjulio.arcademachine.pacman.Direction;
+import com.coolioasjulio.arcademachine.pacman.Ghost;
+import com.coolioasjulio.arcademachine.pacman.LevelMap;
+import com.coolioasjulio.arcademachine.pacman.Utils;
+import com.coolioasjulio.arcademachine.pacman.PacManGame;
 
 import java.util.Arrays;
 

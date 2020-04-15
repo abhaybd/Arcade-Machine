@@ -1,10 +1,10 @@
-package com.coolioasjulio.arcademachine.launcher.pacman.behaviors;
+package com.coolioasjulio.arcademachine.pacman.behaviors;
 
-import com.coolioasjulio.arcademachine.launcher.pacman.Direction;
-import com.coolioasjulio.arcademachine.launcher.pacman.Ghost;
-import com.coolioasjulio.arcademachine.launcher.pacman.Utils;
-import com.coolioasjulio.arcademachine.launcher.pacman.PacManGame;
-import com.coolioasjulio.arcademachine.launcher.pacman.PathFinder;
+import com.coolioasjulio.arcademachine.pacman.Direction;
+import com.coolioasjulio.arcademachine.pacman.Ghost;
+import com.coolioasjulio.arcademachine.pacman.Utils;
+import com.coolioasjulio.arcademachine.pacman.PacManGame;
+import com.coolioasjulio.arcademachine.pacman.PathFinder;
 
 /**
  * This defines the ambush behavior. This is the 2nd ghost (index 1). This ghost will try to get in front of the player

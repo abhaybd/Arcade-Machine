@@ -1,14 +1,14 @@
-package com.coolioasjulio.arcademachine.launcher.pacman;
+package com.coolioasjulio.arcademachine.pacman;
 
 import com.coolioasjulio.arcademachine.launcher.gameutils.InputManager;
-import com.coolioasjulio.arcademachine.launcher.pacman.behaviors.GhostAmbushBehavior;
-import com.coolioasjulio.arcademachine.launcher.pacman.behaviors.GhostChaseBehavior;
-import com.coolioasjulio.arcademachine.launcher.pacman.behaviors.GhostObliviousBehavior;
-import com.coolioasjulio.arcademachine.launcher.pacman.behaviors.GhostPinchBehavior;
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.Coord;
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.Drawer;
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.GameObject;
-import com.coolioasjulio.arcademachine.launcher.pacman.engine.Time;
+import com.coolioasjulio.arcademachine.pacman.behaviors.GhostAmbushBehavior;
+import com.coolioasjulio.arcademachine.pacman.behaviors.GhostChaseBehavior;
+import com.coolioasjulio.arcademachine.pacman.behaviors.GhostObliviousBehavior;
+import com.coolioasjulio.arcademachine.pacman.behaviors.GhostPinchBehavior;
+import com.coolioasjulio.arcademachine.pacman.engine.Coord;
+import com.coolioasjulio.arcademachine.pacman.engine.Drawer;
+import com.coolioasjulio.arcademachine.pacman.engine.GameObject;
+import com.coolioasjulio.arcademachine.pacman.engine.Time;
 
 import java.awt.Color;
 import java.util.ArrayList;
