@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Tetris" />
+        <module name="Snake" />
         <module name="PacMan" />
         <module name="Launcher" />
       </profile>
@@ -15,6 +16,7 @@
       <module name="ArcadeMachine" target="8" />
       <module name="Launcher" target="8" />
       <module name="PacMan" target="8" />
+      <module name="Snake" target="8" />
       <module name="Tetris" target="8" />
     </bytecodeTargetLevel>
   </component>

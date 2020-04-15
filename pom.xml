@@ -12,6 +12,7 @@
         <module>Tetris</module>
         <module>Launcher</module>
         <module>PacMan</module>
+        <module>Snake</module>
     </modules>
 
     <properties>
