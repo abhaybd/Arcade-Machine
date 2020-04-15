@@ -13,7 +13,7 @@ import java.util.Date;
 import javax.swing.*;
 
 public class GameUI extends Game {
-    private static final boolean MOCK_INPUT = true;
+    private static final boolean MOCK_INPUT = false;
 
     private SnakePanel gamePanel;
     JPanel root;
