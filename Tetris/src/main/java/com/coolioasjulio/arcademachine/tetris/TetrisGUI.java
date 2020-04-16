@@ -153,8 +153,8 @@ public class TetrisGUI {
      */
     public void setBlockSize(int size) {
         blockSize = size;
-        borderWidth = blockSize / 15;
-        lineLabelSize = blockSize * 7 / 5;
+        borderWidth = blockSize / 15; // The border is 1/15th of the block
+        lineLabelSize = blockSize * 7 / 5; // the text size is 1.4x the block size
     }
 
     private void renderTask() {
@@ -176,9 +176,9 @@ public class TetrisGUI {
         // Start the render and input threads
         renderThread = new Thread(this::renderTask);
         renderThread.start();
-        Thread inputThread = new Thread(this::inputThread);
         // We only need the input thread if we're not mocking the input
         if (!MOCK_INPUT) {
+            Thread inputThread = new Thread(this::inputThread);
             inputThread.start();
         }
         while (true) {
@@ -208,14 +208,18 @@ public class TetrisGUI {
                 keyPressed(keyCode);
             }
 
+            // Handle key burst (holding a key down will fire the pressed event repeatedly)
             long time = System.currentTimeMillis();
             for (int code : burstKeys.keySet()) {
+                // If a burst key was just pressed, schedule the next press event.
+                // If it was released, schedule it for at the end of time (basically)
                 if (InputManager.keyPressed(code)) {
                     burstKeys.put(code, time + BURST_START_DELAY);
                 } else if (InputManager.keyReleased(code)) {
                     burstKeys.put(code, Long.MAX_VALUE);
                 }
 
+                // If we've passed the scheduled event time, fire the event and reschedule
                 if (time >= burstKeys.get(code)) {
                     burstKeys.put(code, time + BURST_DELAY);
                     keyPressed(code);
@@ -232,6 +236,7 @@ public class TetrisGUI {
      */
     private long getDelay() {
         // This is essentially a modified softplus function, which is very linear at the beginning, and then asymptotically approaches 0
+        // The softplus function is f(x)=ln(1+e^x), we want to flip it across the y-axis, and then scale it in both x and y
         int level = tetris.getClearedLines() / 10;
         double a = LEVEL_0_DELAY / Math.log(2.0); // solve for a where f(0) = LEVEL_0_DELAY
         return Math.round(a * Math.log(1.0 + Math.exp(-DIFFICULTY * level)));
