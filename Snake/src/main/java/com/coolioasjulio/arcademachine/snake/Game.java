@@ -10,12 +10,23 @@ public class Game {
     /**
      * This value is completely arbitrary. It affects the slope/curvature of the delay curve.
      * Increasing this value makes the delay drop faster.
+     *
+     * The difficulty function is f(x) = A*ln(b+e^(-d*x)).
+     * A = maxDelay/ln(1+b)
+     * b^maxDelay=(b+1)^minDelay, solve for b
+     * d = arbitrary difficult
      */
-    private static final double DIFFICULTY = 0.2;
+    private static final double DIFFICULTY = 0.05;
     /**
      * The delay, in ms, at level 0
      */
     private static final double LEVEL_0_DELAY = 300;
+
+    /**
+     * This term is used to set the minimum delay. As the level tends to infinity, the delay tends to 50ms.
+     * This is calculated by setting f(infinity)=50, and solving for b.
+     */
+    private static final double MIN_DELAY_TERM = 1.13472; // sets minimum delay to 50ms
 
     private int width, height;
     private int level;
@@ -86,8 +97,8 @@ public class Game {
     }
 
     public long getDelay() {
-        double a = LEVEL_0_DELAY / Math.log(2.0); // solve for a where f(0) = LEVEL_0_DELAY
-        return Math.round(a * Math.log(1.0 + Math.exp(-DIFFICULTY * level)));
+        double a = LEVEL_0_DELAY / Math.log(MIN_DELAY_TERM + 1.0); // solve for a where f(0) = LEVEL_0_DELAY
+        return Math.round(a * Math.log(MIN_DELAY_TERM + Math.exp(-DIFFICULTY * level)));
     }
 
     public boolean isDead() {
