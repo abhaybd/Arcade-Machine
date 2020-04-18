@@ -1,14 +1,14 @@
 package com.coolioasjulio.arcademachine.snake;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Snake {
 
     public enum Direction {NORTH, EAST, SOUTH, WEST}
 
-    private Block head;
-    private Block tail;
+    private List<Coord> body;
     private int directionIndex; // TODO: change this to use a list or whatever
 
     public Snake(Coord headCoord, Coord tailCoord) {
@@ -23,9 +23,9 @@ public class Snake {
         } else {
             directionIndex = dx > 0 ? 1 : 3;
         }
-        head = new Block(headCoord);
-        tail = new Block(tailCoord, head);
-        head.setDownstreamBlock(tail);
+        body = new LinkedList<>();
+        body.add(headCoord);
+        body.add(tailCoord);
     }
 
     public int getDirectionIndex() {
@@ -36,59 +36,49 @@ public class Snake {
         return Direction.values()[directionIndex];
     }
 
-    public Block getHead() {
-        return head;
+    public Coord getHead() {
+        return body.get(0);
     }
 
-    public Block[] getBlockArray() {
-        int size = 1;
-        Block b = head;
-        while ((b = b.getDownstreamBlock()) != null) {
-            size++;
-        }
-        Block[] arr = new Block[size];
-        int i = 0;
-        for (b = head; b != null; b = b.getDownstreamBlock()) {
-            arr[i++] = b;
-        }
-        return arr;
+    public Coord getTail() {
+        return body.get(body.size() - 1);
     }
 
-    public List<Block> getBlocks() {
-        return Arrays.asList(getBlockArray());
+    public List<Coord> getBody() {
+        return body;
     }
 
     public void grow() {
-        Block secondToLast = tail.getUpstreamBlock();
-        int dx = tail.getCoord().getX() - secondToLast.getCoord().getX();
-        int dy = tail.getCoord().getY() - secondToLast.getCoord().getY();
-        Block newTail = new Block(new Coord(tail.getCoord().getX() + dx, tail.getCoord().getY() + dy), tail);
-        tail.setDownstreamBlock(newTail);
-        tail = newTail;
+        Coord secondToLast = body.get(body.size() - 2);
+        Coord tail = getTail();
+        int dx = tail.getX() - secondToLast.getX();
+        int dy = tail.getY() - secondToLast.getY();
+        Coord newTail = new Coord(tail.getX() + dx, tail.getY() + dy);
+        body.add(newTail);
     }
 
     private boolean validDirection(Direction direction) {
-        Coord headCoord = head.getCoord();
         Coord coord;
+        Coord head = getHead();
         switch (direction) {
             default:
             case NORTH:
-                coord = new Coord(headCoord.getX(), headCoord.getY() - 1);
+                coord = new Coord(head.getX(), head.getY() - 1);
                 break;
 
             case EAST:
-                coord = new Coord(headCoord.getX() + 1, headCoord.getY());
+                coord = new Coord(head.getX() + 1, head.getY());
                 break;
 
             case SOUTH:
-                coord = new Coord(headCoord.getX(), headCoord.getY() + 1);
+                coord = new Coord(head.getX(), head.getY() + 1);
                 break;
 
             case WEST:
-                coord = new Coord(headCoord.getX() - 1, headCoord.getY());
+                coord = new Coord(head.getX() - 1, head.getY());
                 break;
         }
-        return !coord.equals(head.getDownstreamBlock().getCoord());
+        return !coord.equals(body.get(1));
     }
 
     private boolean validDirection(int newDirIndex) {
@@ -117,36 +107,25 @@ public class Snake {
 
     public void forward() {
         Direction dir = Direction.values()[directionIndex];
-        Coord oldHeadCoord = head.getCoord();
+        Coord newHead = getHead();
         switch (dir) {
             case NORTH:
-                head.decY();
+                newHead = newHead.decY();
                 break;
 
             case EAST:
-                head.incX();
+                newHead = newHead.incX();
                 break;
 
             case SOUTH:
-                head.incY();
+                newHead = newHead.incY();
                 break;
 
             case WEST:
-                head.decX();
+                newHead = newHead.decX();
                 break;
         }
-        Block downstream = head.getDownstreamBlock();
-        if (downstream != tail) {
-            Block newTail = tail.getUpstreamBlock();
-            newTail.setDownstreamBlock(null);
-            tail.setUpstreamBlock(head);
-            downstream.setUpstreamBlock(tail);
-            head.setDownstreamBlock(tail);
-            tail.setDownstreamBlock(downstream);
-            tail.setCoord(oldHeadCoord);
-            tail = newTail;
-        } else {
-            tail.setCoord(oldHeadCoord);
-        }
+        body.add(0, newHead);
+        body.remove(body.size() - 1);
     }
 }

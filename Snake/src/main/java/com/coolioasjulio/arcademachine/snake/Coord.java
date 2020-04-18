@@ -18,6 +18,22 @@ public class Coord {
         return y;
     }
 
+    public Coord incX() {
+        return new Coord(x + 1, y);
+    }
+
+    public Coord decX() {
+        return new Coord(x - 1, y);
+    }
+
+    public Coord incY() {
+        return new Coord(x, y + 1);
+    }
+
+    public Coord decY() {
+        return new Coord(x, y - 1);
+    }
+
     @Override
     public String toString() {
         return String.format("(%d, %d)", x, y);

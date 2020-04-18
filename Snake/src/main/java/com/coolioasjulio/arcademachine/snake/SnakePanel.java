@@ -3,6 +3,7 @@ package com.coolioasjulio.arcademachine.snake;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import javax.swing.*;
 
@@ -46,11 +47,11 @@ public class SnakePanel extends JPanel {
 
         g.setColor(PLAYER_COLOR);
         Snake snake = game.getSnake();
-        Coord head = snake.getHead().getCoord();
+        Coord head = snake.getHead();
         g.fillOval(toPixelsX(head.getX()), toPixelsY(head.getY()), blockSize, blockSize);
-        List<Block> blocks = snake.getBlocks();
-        for (int i = 1; i < blocks.size(); i++) {
-            Coord c = blocks.get(i).getCoord();
+        List<Coord> coords = snake.getBody();
+        for (ListIterator<Coord> iter = coords.listIterator(1); iter.hasNext(); ) {
+            Coord c = iter.next();
             g.fillRect(toPixelsX(c.getX()), toPixelsY(c.getY()), blockSize, blockSize);
         }
 

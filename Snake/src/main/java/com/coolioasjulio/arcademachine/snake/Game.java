@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class Game {
 
@@ -92,17 +91,17 @@ public class Game {
     }
 
     public boolean isDead() {
-        Coord head = snake.getHead().getCoord();
+        Coord head = snake.getHead();
         if (!Utils.inRange(head.getX(), 0, width) || !Utils.inRange(head.getY(), 0, height)) {
             return true;
         }
 
-        List<Block> blocks = snake.getBlocks();
-        return blocks.stream().skip(1).map(Block::getCoord).anyMatch(Predicate.isEqual(head));
+        List<Coord> blocks = snake.getBody();
+        return blocks.stream().skip(1).anyMatch(Predicate.isEqual(head));
     }
 
     public void eatPellet() {
-        if (snake.getHead().getCoord().equals(pellet)) {
+        if (snake.getHead().equals(pellet)) {
             level++;
             onLevelUp();
             snake.grow();
@@ -119,7 +118,7 @@ public class Game {
 
     private void placePellet() {
         Random r = ThreadLocalRandom.current();
-        List<Coord> blocks = snake.getBlocks().stream().map(Block::getCoord).collect(Collectors.toList());
+        List<Coord> blocks = snake.getBody();
         do {
             pellet = new Coord(r.nextInt(width), r.nextInt(height));
         } while (blocks.stream().anyMatch(Predicate.isEqual(pellet)));
