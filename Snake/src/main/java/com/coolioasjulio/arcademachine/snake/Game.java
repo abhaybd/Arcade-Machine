@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Game {
 
@@ -118,7 +119,7 @@ public class Game {
 
     private void placePellet() {
         Random r = ThreadLocalRandom.current();
-        List<Block> blocks = snake.getBlocks();
+        List<Coord> blocks = snake.getBlocks().stream().map(Block::getCoord).collect(Collectors.toList());
         do {
             pellet = new Coord(r.nextInt(width), r.nextInt(height));
         } while (blocks.stream().anyMatch(Predicate.isEqual(pellet)));
