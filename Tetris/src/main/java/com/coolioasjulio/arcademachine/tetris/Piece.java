@@ -4,10 +4,21 @@ import java.util.Arrays;
 
 public final class Piece {
 
+    /**
+     * In Tetris, there are 7 different types of pieces.
+     * Each piece is represented by a letter which roughly matches its shape.
+     * It's explained here: https://tetris.fandom.com/wiki/Tetromino
+     */
     public enum PieceType {
         I, O, J, L, T, S, Z
     }
 
+    /**
+     * Create a new Piece object based on the PieceType
+     *
+     * @param type the type of piece to create
+     * @return The created Piece object
+     */
     public static Piece createPiece(PieceType type) {
         switch (type) {
             case I:
@@ -35,6 +46,10 @@ public final class Piece {
                 throw new IllegalArgumentException("Unrecognized PieceType!");
         }
     }
+
+    // These next methods create a piece of a specified type.
+    // The vectors supplied as parameters are the positions of the blocks that make up the piece in local space
+    // The origin in local space is the center of rotation
 
     public static Piece createIPiece() {
         return new Piece(PieceType.I, new Vector(0, -1), new Vector(0, 0), new Vector(0, 1), new Vector(0, 2));
@@ -68,6 +83,12 @@ public final class Piece {
     private PieceType type;
     private int x, y;
 
+    /**
+     * Create a new Piece object, with the supplied local block positions.
+     *
+     * @param type The piece type represented by this Piece object.
+     * @param vectors The positions of the blocks that make up this Piece object, in local space.
+     */
     private Piece(PieceType type, Vector... vectors) {
         this.type = type;
         this.vectors = vectors;

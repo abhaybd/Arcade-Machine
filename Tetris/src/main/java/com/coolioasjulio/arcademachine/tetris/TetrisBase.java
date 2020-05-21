@@ -13,6 +13,7 @@ public class TetrisBase {
     private Piece fallingPiece;
     /**
      * This represents every block on the block pile. (all blocks that aren't falling)
+     * We need to associate every block with a PieceType in order to know what color to draw it.
      */
     private final Map<Vector, Piece.PieceType> blockPile;
     private final Random random;
@@ -87,7 +88,7 @@ public class TetrisBase {
             } else {
                 // If a new piece cannot be spawned, the player has lost
                 System.out.println("You lose!");
-                return lost = true;
+                return lost = true; // set lost to true and return true
             }
         } else {
             // If the piece is still falling, move it down
@@ -97,7 +98,7 @@ public class TetrisBase {
                 // Otherwise, assimilate it into the block pile
                 addPieceToPile(fallingPiece);
                 fallingPiece = null;
-                clearLines(); // clear full lines if necessary
+                clearLines(); // clear filled lines if necessary
             }
         }
         return false;
