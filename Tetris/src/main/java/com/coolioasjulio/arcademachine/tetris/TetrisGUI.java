@@ -33,6 +33,10 @@ public class TetrisGUI {
     private static final Color GAME_BG_COLOR = new Color(32, 32, 32);
     public static final Color TEXT_COLOR = Color.WHITE;
 
+    /**
+     * If true, the input will be from the computer keyboard.
+     * Otherwise, the input will come from the InputManager from the arcade machine buttons.
+     */
     private static final boolean MOCK_INPUT = false;
     private static final boolean FULL_SCREEN = true;
 
